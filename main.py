@@ -18,11 +18,11 @@ keyboard = io.devices.keyboard
 mouse=io.devices.mouse
 clock = core.Clock()
 
-# ioHub currently supports the use of 'one', 'full screen' PsychoPy Window
-# for stimulus presentation. Let's create one....
+# Initialize Window with constants
+# May be changed depending on future console screen sizes
 #
-windowsizex = 800
-windowsizey = 800
+windowsizex = 1200
+windowsizey = 900
 window=visual.Window(size=(windowsizex,windowsizey),
                         units='norm',
                         color=[128,128,128], colorSpace='rgb255',
@@ -30,11 +30,6 @@ window=visual.Window(size=(windowsizex,windowsizey),
                         )
 
 mouseclick = event.Mouse(win=window)
-
-# Mouse
-#
-fixSpot = visual.PatchStim(window,tex="none", mask="gauss",
-                    pos=(0,0), size=(30,30),color='black', autoLog=False)
 
 # Instructions
 #
@@ -44,6 +39,13 @@ title_label = visual.TextStim(window, units='norm', text=u'Temp Instructions\nPr
                          alignVert='center')
 
 second_label = visual.TextStim(window, units='norm', text=u'Please click on the colored blocks in the order that they previously appeared',
+                         pos = [0,0], height=0.1,
+                         color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
+                         alignVert='center')
+
+# Text Cues
+#
+next_label = visual.TextStim(window, units='norm', text=u'Next Round',
                          pos = [0,0], height=0.1,
                          color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
                          alignVert='center')
@@ -71,83 +73,112 @@ io.clearEvents('all')
 QUIT_EXP=False
 demo_timeout_start=core.getTime()
 
-# for instruction page
-#
-title_label.draw()
-window.flip()
-io.clearEvents('all')
-
-FINISH_INSTR=False
-while FINISH_INSTR is False:
-    for event in keyboard.getEvents():
-        if (event.key=='p'):
-            FINISH_INSTR = True
-
-
-title_label.setOpacity(0.0)
-
-# for block display
-#
-print "Begin Block Segment"
-print clock.getTime()
-
-for frameN in range(350):
-    if 0<= frameN < 100:
-        red_rect_stim.draw()
-    if 101 <= frameN < 200:
-        blue_rect_stim.draw()
-    if 201 <= frameN < 300:
-        green_rect_stim.draw()
-    # if frameN is > 300, there will just be a pause
-    window.flip()
-
-
-print "End Block Segment"
-print clock.getTime()
-
-
-# second instructions
-io.clearEvents('all')
-for frameN in range(150):
-    second_label.draw()
-    window.flip()
-
-
-# for block interaction
-#
 while QUIT_EXP is False:
-    io.clearEvents()
 
-    # Redraw all blocks and window flip
+    #### INITIAL STARTER SCREEN ####
+
+    # for instruction page
     #
-    [s.draw() for s in BLOCK_LIST]
-    flip_time=window.flip()
+    title_label.draw()
+    window.flip()
+    io.clearEvents('all')
 
-    # Get the current mouse position
-    # posDelta is the change in position *since the last call*
-    position, posDelta = mouse.getPositionAndDelta()
-    mouse_X,mouse_Y=position
-    mouse_dX,mouse_dY=posDelta
+    FINISH_INSTR=False
+    while FINISH_INSTR is False and QUIT_EXP is False:
+        for event in keyboard.getEvents():
+            if (event.key=='p'):
+                FINISH_INSTR = True
+            if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
+                QUIT_EXP=True
+                break
 
-    # Get the current state of each of the Mouse Buttons
-    left_button, middle_button, right_button = mouse.getCurrentButtonStates()
+    #### SINGLE ROUND OF BLOCK GAME ####
 
-    # If the left button is pressed
-    if left_button:
-        # top left corner box
-        if (-(xhalf-xmargin) <= mouse_X <= -xmargin and ymargin <= mouse_Y <= (yhalf-ymargin)):
-            red_rect_stim.setOpacity(0.0)
-        # top right corner box
-        if (xmargin <= mouse_X <= (xhalf-xmargin) and ymargin <= mouse_Y <= (yhalf-ymargin)):
-            green_rect_stim.setOpacity(0.0)
-        # bottom right corner box
-        if (xmargin <= mouse_X <= (xhalf-xmargin) and  -(yhalf-ymargin) <= mouse_Y <= -ymargin):
-            blue_rect_stim.setOpacity(0.0)
+    # for block display
+    #
+    print "Begin Block Segment 1"
+    print clock.getTime()
+
+    for frameN in range(350):
+        if QUIT_EXP is True:
+            break
+        if 0<= frameN < 100:
+            red_rect_stim.draw()
+        if 101 <= frameN < 200:
+            blue_rect_stim.draw()
+        if 201 <= frameN < 300:
+            green_rect_stim.draw()
+        # if frameN is > 300, there will just be a pause
+        window.flip()
+        for event in keyboard.getEvents():
+            demo_timeout_start=event.time
+            if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
+                QUIT_EXP=True
+                break
+
+
+    print "End Block Segment 1"
+    print clock.getTime()
+
+
+    # second instructions
+    io.clearEvents('all')
+    for frameN in range(150):
+        if QUIT_EXP is True:
+            break
+        second_label.draw()
+        window.flip()
+        for event in keyboard.getEvents():
+            demo_timeout_start=event.time
+            if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
+                QUIT_EXP=True
+                break
+
+
+    # for block interaction
+    #
+    io.clearEvents()
+    finished1 = False
+
+    while finished1==False and QUIT_EXP is False:
+        # Redraw all blocks and window flip
+        #
+        [s.draw() for s in BLOCK_LIST]
+        flip_time=window.flip()
+
+        # Get the current mouse position (don't need delta position)
+        position, posDelta = mouse.getPositionAndDelta()
+        mouse_X,mouse_Y=position
+
+        # Get the current state of mouse buttons
+        left_button, middle_button, right_button = mouse.getCurrentButtonStates()
+
+        # If the left button is pressed
+        if left_button:
+            # top left corner box
+            if (-(xhalf-xmargin) <= mouse_X <= -xmargin and ymargin <= mouse_Y <= (yhalf-ymargin)):
+                red_rect_stim.setOpacity(0.0)
+            # top right corner box
+            if (xmargin <= mouse_X <= (xhalf-xmargin) and ymargin <= mouse_Y <= (yhalf-ymargin)):
+                green_rect_stim.setOpacity(0.0)
+            # bottom right corner box
+            if (xmargin <= mouse_X <= (xhalf-xmargin) and  -(yhalf-ymargin) <= mouse_Y <= -ymargin):
+                blue_rect_stim.setOpacity(0.0)
+
+        for event in keyboard.getEvents():
+            demo_timeout_start=event.time
+            if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
+                QUIT_EXP=True
+                break
+        if red_rect_stim.opacity==0.0 and green_rect_stim.opacity==0.0 and blue_rect_stim.opacity==0.0:
+            finished1=True
+            break
+
+
 
 
     for event in keyboard.getEvents():
         demo_timeout_start=event.time
-
         if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
             QUIT_EXP=True
             break
