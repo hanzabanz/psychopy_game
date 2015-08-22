@@ -4,12 +4,16 @@ __author__ = 'hannah'
 main.py
 
 No timing information is saved yet
+No order information is saved yet
 """
 import sys
 
 from psychopy import core, visual
 from psychopy.iohub import launchHubServer,EventConstants
 from psychopy import event
+import trial
+import helper
+
 
 # Set up devices and events
 io=launchHubServer(experiment_code='key_evts',psychopy_monitor_name='default')
@@ -21,8 +25,8 @@ clock = core.Clock()
 # Initialize Window with constants
 # May be changed depending on future console screen sizes
 #
-windowsizex = 1200
-windowsizey = 900
+windowsizex = 800
+windowsizey = 600
 window=visual.Window(size=(windowsizex,windowsizey),
                         units='norm',
                         color=[128,128,128], colorSpace='rgb255',
@@ -45,7 +49,12 @@ second_label = visual.TextStim(window, units='norm', text=u'Please click on the 
 
 # Text Cues
 #
-next_label = visual.TextStim(window, units='norm', text=u'Next Round',
+next_label = visual.TextStim(window, units='norm', text=u'New Round',
+                         pos = [0,0], height=0.1,
+                         color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
+                         alignVert='center')
+
+end_label = visual.TextStim(window, units='norm', text=u'Thank you!\nExiting...',
                          pos = [0,0], height=0.1,
                          color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
                          alignVert='center')
@@ -57,14 +66,6 @@ green_rect_stim = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), 
 blue_rect_stim = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor='blue', fillColorSpace='rgb', pos=(0.5, -0.5))
 
 BLOCK_LIST =[red_rect_stim, green_rect_stim, blue_rect_stim]
-
-# calculate the pixel location of the boxes
-# keep in mind that the origin/center is (0,0)
-xmargin = windowsizex/8
-ymargin = windowsizey/8
-xhalf = windowsizex/2
-yhalf = windowsizey/2
-
 
 # Clear all events from the global and device level ioHub Event Buffers.
 #
@@ -92,96 +93,32 @@ while QUIT_EXP is False:
                 QUIT_EXP=True
                 break
 
-    #### SINGLE ROUND OF BLOCK GAME ####
-
-    # for block display
-    #
-    print "Begin Block Segment 1"
-    print clock.getTime()
-
-    for frameN in range(350):
-        if QUIT_EXP is True:
-            break
-        if 0<= frameN < 100:
-            red_rect_stim.draw()
-        if 101 <= frameN < 200:
-            blue_rect_stim.draw()
-        if 201 <= frameN < 300:
-            green_rect_stim.draw()
-        # if frameN is > 300, there will just be a pause
-        window.flip()
-        for event in keyboard.getEvents():
-            demo_timeout_start=event.time
-            if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
-                QUIT_EXP=True
-                break
-
-
-    print "End Block Segment 1"
-    print clock.getTime()
-
-
-    # second instructions
-    io.clearEvents('all')
-    for frameN in range(150):
-        if QUIT_EXP is True:
-            break
-        second_label.draw()
-        window.flip()
-        for event in keyboard.getEvents():
-            demo_timeout_start=event.time
-            if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
-                QUIT_EXP=True
-                break
-
-
-    # for block interaction
-    #
-    io.clearEvents()
-    finished1 = False
-
-    while finished1==False and QUIT_EXP is False:
-        # Redraw all blocks and window flip
-        #
-        [s.draw() for s in BLOCK_LIST]
-        flip_time=window.flip()
-
-        # Get the current mouse position (don't need delta position)
-        position, posDelta = mouse.getPositionAndDelta()
-        mouse_X,mouse_Y=position
-
-        # Get the current state of mouse buttons
-        left_button, middle_button, right_button = mouse.getCurrentButtonStates()
-
-        # If the left button is pressed
-        if left_button:
-            # top left corner box
-            if (-(xhalf-xmargin) <= mouse_X <= -xmargin and ymargin <= mouse_Y <= (yhalf-ymargin)):
-                red_rect_stim.setOpacity(0.0)
-            # top right corner box
-            if (xmargin <= mouse_X <= (xhalf-xmargin) and ymargin <= mouse_Y <= (yhalf-ymargin)):
-                green_rect_stim.setOpacity(0.0)
-            # bottom right corner box
-            if (xmargin <= mouse_X <= (xhalf-xmargin) and  -(yhalf-ymargin) <= mouse_Y <= -ymargin):
-                blue_rect_stim.setOpacity(0.0)
-
-        for event in keyboard.getEvents():
-            demo_timeout_start=event.time
-            if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
-                QUIT_EXP=True
-                break
-        if red_rect_stim.opacity==0.0 and green_rect_stim.opacity==0.0 and blue_rect_stim.opacity==0.0:
-            finished1=True
-            break
-
-
-
-
-    for event in keyboard.getEvents():
-        demo_timeout_start=event.time
-        if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
+    #### FIVE ROUNDS OF BLOCK GAME ####
+    # todo: all rounds are the same, need to customize by rand
+    status = 1
+    for num in range(5):
+        if status == 1:
+            # restart values and indicate new round
+            red_rect_stim.setOpacity(1.0)
+            green_rect_stim.setOpacity(1.0)
+            blue_rect_stim.setOpacity(1.0)
+            helper.wait(window, 25)
+            for frameN in range(175):
+                next_label.draw()
+                window.flip()
+            helper.wait(window, 25)
+        print num
+        status = trial.trial(clock, window, io, red_rect_stim, green_rect_stim, blue_rect_stim, keyboard, mouse, second_label)
+        if status == -1:
             QUIT_EXP=True
             break
 
+    #### END MESSAGE ####
+    # if trial loop is finished successfully, then end the program
+    QUIT_EXP=True
+
+    for frameN in range(150):
+        end_label.draw()
+        window.flip()
 
 io.quit()
