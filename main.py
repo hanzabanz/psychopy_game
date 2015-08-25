@@ -3,7 +3,6 @@ __author__ = 'hannah'
 """
 main.py
 
-No timing information is saved yet
 No order information is saved yet
 """
 import sys
@@ -13,6 +12,7 @@ from psychopy.iohub import launchHubServer,EventConstants
 from psychopy import event
 import trial
 import helper
+import random
 
 
 # Set up devices and events
@@ -94,7 +94,6 @@ while QUIT_EXP is False:
                 break
 
     #### FIVE ROUNDS OF BLOCK GAME ####
-    # todo: all rounds are the same, need to customize by rand
     status = 1
     for num in range(5):
         if status == 1:
@@ -102,13 +101,16 @@ while QUIT_EXP is False:
             red_rect_stim.setOpacity(1.0)
             green_rect_stim.setOpacity(1.0)
             blue_rect_stim.setOpacity(1.0)
+
             helper.wait(window, 25)
             for frameN in range(175):
                 next_label.draw()
                 window.flip()
             helper.wait(window, 25)
-        print num
-        status = trial.trial(clock, window, io, red_rect_stim, green_rect_stim, blue_rect_stim, keyboard, mouse, second_label)
+
+        shapes = [red_rect_stim, green_rect_stim, blue_rect_stim]
+        random.shuffle(shapes)
+        status = trial.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouse, second_label)
         if status == -1:
             QUIT_EXP=True
             break

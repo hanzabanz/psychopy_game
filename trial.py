@@ -1,9 +1,13 @@
 __author__ = 'hannah'
 
+import sys
+from psychopy import core
 import units
 
 def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_label):
+    print "\n\n*** NEW TRIAL ***"
     QUIT_EXP = False
+
     # calculate distances and locations
     win_size_x, win_size_y = window.size
 
@@ -30,8 +34,12 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_lab
     print "Begin Block Segment"
     print clock.getTime()
 
+    displayClock = core.Clock()
+
     # order customized by the order input
     for frameN in range(350):
+        if(frameN == 100 or frameN == 200 or frameN == 300):
+            print "%f" %(displayClock.getTime())
         if QUIT_EXP is True:
             break
         if 0<= frameN < 100:
@@ -66,15 +74,17 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_lab
                 QUIT_EXP=True
                 break
 
-
     # for block interaction
     #
     io.clearEvents()
     finished1 = False
 
+    interactClock = core.Clock()
+    initTime = interactClock.getTime()
+
     while finished1==False and QUIT_EXP is False:
         # Redraw all blocks and window flip
-        #
+        # todo: need to pull flip() out so that it is not delaying the loop
         [s.draw() for s in BLOCK_LIST]
         flip_time=window.flip()
 
@@ -87,12 +97,22 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_lab
 
         # If the left button is pressed
         if left_button:
+            clicktime = interactClock.getTime()
             if (dim1[0] <= mouse_X <= dim1[1] and dim1[3] <= mouse_Y <= dim1[2]):
-                shape1.setOpacity(0.0)
+                if(shape1.opacity != 0.0):
+                    shape1.setOpacity(0.0)
+                shape1time = interactClock.getTime()
+                print "%f\t%f\t%f" %(clicktime, shape1time, shape1time - clicktime)
             if (dim2[0] <= mouse_X <= dim2[1] and dim2[3] <= mouse_Y <= dim2[2]):
-                shape2.setOpacity(0.0)
+                if(shape2.opacity != 0.0):
+                    shape2.setOpacity(0.0)
+                shape2time = interactClock.getTime()
+                print "%f\t%f\t%f" %(clicktime, shape2time, shape2time - clicktime)
             if (dim3[0] <= mouse_X <= dim3[1] and dim3[3] <= mouse_Y <= dim3[2]):
-                shape3.setOpacity(0.0)
+                if(shape3.opacity != 0.0):
+                    shape3.setOpacity(0.0)
+                shape3time = interactClock.getTime()
+                print "%f\t%f\t%f" %(clicktime, shape3time, shape3time - clicktime)
 
         for event in keyboard.getEvents():
             demo_timeout_start=event.time
@@ -101,6 +121,7 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_lab
                 break
         if shape1.opacity==0.0 and shape2.opacity==0.0 and shape3.opacity==0.0:
             finished1=True
+            print "\n%f\t%f\t%f\t%f" %(initTime, shape1time, shape2time, shape3time)
             break
 
     if QUIT_EXP == True:

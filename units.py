@@ -12,6 +12,6 @@ def pix_conv(window_w, window_h, w, h, a, b):
     right = (pos_conv(window_w, a) + unit_conv(window_w, w)) * a_sign
     top = (pos_conv(window_h, b) + unit_conv(window_h, h)) * b_sign
     bottom = (pos_conv(window_h, b) - unit_conv(window_h, h)) * -b_sign
-    print "Window %d %d   Width %d    Height %d    A %d   B %d" %(window_w, window_h, w, h, a, b)
-    print "Left %d   Right %d   Top %d   Bottom %d" %(left, right, top, bottom)
+    #print "Window %d %d   Width %d    Height %d    A %d   B %d" %(window_w, window_h, w, h, a, b)
+    #print "Left %d   Right %d   Top %d   Bottom %d" %(left, right, top, bottom)
     return (left, right, top, bottom)
