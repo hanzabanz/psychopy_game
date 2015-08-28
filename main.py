@@ -16,11 +16,12 @@ import random
 
 
 # Set up devices and events
+clock = core.Clock()
 io=launchHubServer(experiment_code='key_evts',psychopy_monitor_name='default')
 display = io.devices.display
 keyboard = io.devices.keyboard
 mouse=io.devices.mouse
-clock = core.Clock()
+
 
 # Initialize Window with constants
 # May be changed depending on future console screen sizes
