@@ -95,26 +95,36 @@ while QUIT_EXP is False:
                 break
 
     #### FIVE ROUNDS OF BLOCK GAME ####
-    status = 1
-    for num in range(5):
-        if status == 1:
-            # restart values and indicate new round
-            red_rect_stim.setOpacity(1.0)
-            green_rect_stim.setOpacity(1.0)
-            blue_rect_stim.setOpacity(1.0)
+    if QUIT_EXP == False:
+        status = 1
+        for num in range(5):
+            if status != -1:
+                # restart values and indicate new round
+                red_rect_stim.setOpacity(1.0)
+                green_rect_stim.setOpacity(1.0)
+                blue_rect_stim.setOpacity(1.0)
 
-            helper.wait(window, 25)
-            for frameN in range(175):
-                next_label.draw()
-                window.flip()
-            helper.wait(window, 25)
+                # display new round label
+                helper.wait(window, 25)
+                for frameN in range(175):
+                    next_label.draw()
+                    window.flip()
+                    if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
+                        QUIT_EXP=True
+                        break
+                helper.wait(window, 25)
 
-        shapes = [red_rect_stim, green_rect_stim, blue_rect_stim]
-        random.shuffle(shapes)
-        status = trial.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouse, second_label)
-        if status == -1:
-            QUIT_EXP=True
-            break
+                # randomize block order and begin new round
+                shapes = [red_rect_stim, green_rect_stim, blue_rect_stim]
+                random.shuffle(shapes)
+                status = trial.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, second_label)
+                if status == 1:
+                    print "Correct"
+                if status == 0:
+                    print "Not Correct"
+            if status == -1:
+                QUIT_EXP=True
+                break
 
     #### END MESSAGE ####
     # if trial loop is finished successfully, then end the program
