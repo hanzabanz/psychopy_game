@@ -5,16 +5,21 @@ Accurate mouse click timing implemented
 """
 
 from psychopy import event
+from psychopy import data
+
 
 # called on initial flip when all 3 stimuli appear
 def track_mouse_time(clock, otherMouse):
-    global mouse_beg
-    mouse_beg = clock.getTime()
+    global mouse_beg_time
+    mouse_beg_time = clock.getTime()
     otherMouse.clickReset()
-    print "%f TIME FOR INITIAL STIMULUS" %(mouse_beg)
+    global in_between_time
+    in_between_time = (clock.getTime() - in_between_time)
+    print "%f TIME FOR INITIAL STIMULUS" %(mouse_beg_time)
 
-def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_label):
+def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_label, exp):
     print "\n\n*** NEW TRIAL ***"
+
     QUIT_EXP = False
     event.clearEvents()
 
@@ -35,6 +40,9 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_lab
         if 201 <= frameN < 300:
             shape3.draw()
         # if frameN is > 300, there will just be a pause
+        if frameN == 300:
+            global in_between_time
+            in_between_time = clock.getTime()
         window.flip()
         for evt in keyboard.getEvents():
             demo_timeout_start=evt.time
@@ -96,7 +104,7 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_lab
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if shape1.opacity==0.0 and shape2.opacity==0.0 and shape3.opacity==0.0:
             finish_time = clock.getTime()
-            total_stimuli_time = finish_time - mouse_beg
+            total_stimuli_time = finish_time - mouse_beg_time
             finished1=True
             print "\n%f\t%f\t%f" %(shape1time, shape2time, shape3time)
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
@@ -104,6 +112,10 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, second_lab
 
     if QUIT_EXP == True:
         return -1
+
+    exp.addData("time1", shape1time)
+    exp.addData("time2", shape2time)
+    exp.addData("time3", shape3time)
 
     # return status code based on correctness of sequence
     if(shape3time > shape2time and shape2time > shape1time):

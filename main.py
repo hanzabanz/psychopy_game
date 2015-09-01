@@ -10,9 +10,19 @@ import sys
 from psychopy import core, visual
 from psychopy.iohub import launchHubServer,EventConstants
 from psychopy import event
+from psychopy import data
+
 import trial
 import helper
 import random
+
+
+# Constants and Settings
+experiment_name = "test"
+participant_id = 1
+version = 1.0
+num_reps = 2
+file_name = "testExp"
 
 
 # Set up devices and events
@@ -95,9 +105,20 @@ while QUIT_EXP is False:
                 break
 
     #### FIVE ROUNDS OF BLOCK GAME ####
+    exp = data.ExperimentHandler(name=experiment_name,
+                version=version,
+                extraInfo={'participant':participant_id},
+                runtimeInfo=None,
+                originPath=None,
+                savePickle=True,
+                saveWideText=True,
+                dataFileName=file_name)
+
     if QUIT_EXP == False:
         status = 1
-        for num in range(5):
+        for num in range(num_reps):
+            trial_loop = data.TrialHandler(trialList=[], nReps=1, name='trial_loop', method='trial.trial')
+            exp.addLoop(trial_loop)
             if status != -1:
                 # restart values and indicate new round
                 red_rect_stim.setOpacity(1.0)
@@ -117,7 +138,12 @@ while QUIT_EXP is False:
                 # randomize block order and begin new round
                 shapes = [red_rect_stim, green_rect_stim, blue_rect_stim]
                 random.shuffle(shapes)
-                status = trial.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, second_label)
+                status = trial.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, second_label, exp)
+                exp.addData('shape1', shapes[0].fillColor)
+                exp.addData('shape2', shapes[1].fillColor)
+                exp.addData('shape3', shapes[2].fillColor)
+                exp.addData('correct', status)
+                exp.nextEntry()
                 if status == 1:
                     print "Correct"
                 if status == 0:
