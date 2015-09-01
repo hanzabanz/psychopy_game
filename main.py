@@ -2,8 +2,6 @@ __author__ = 'hannah'
 # -*- coding: utf-8 -*-
 """
 main.py
-
-No order information is saved yet
 """
 import sys
 
@@ -11,19 +9,42 @@ from psychopy import core, visual
 from psychopy.iohub import launchHubServer,EventConstants
 from psychopy import event
 from psychopy import data
+import re
 
 import trial
 import helper
 import random
 
+# Read in constants and settings from config.txt
+with open('config.txt', 'r') as f:
+    config_text = f.read()
+config_text = config_text.replace(' ', '')
 
-# Constants and Settings
-experiment_name = "test"
-participant_id = 1
-version = 1.0
-num_reps = 2
-file_name = "testExp"
+# Experiment Settings
+experiment_name = re.search('experiment_name.+?\n', config_text).group(0)[16:-1]
+participant_id = re.search('participant_id.+?\n', config_text).group(0)[15:-1]
+version = re.search('version.+?\n', config_text).group(0)[8:-1]
+num_reps = int(re.search('num_reps.+?\n', config_text).group(0)[9:-1])
+file_name = re.search('file_name.+?\n', config_text).group(0)[10:-1]
+#
+# Display Settings
+windowsizex = int(re.search('windowsizex.+?\n', config_text).group(0)[12:-1])
+windowsizey = int(re.search('windowsizey.+?\n', config_text).group(0)[12:-1])
+full_screen = re.search('full_screen.+?\n', config_text).group(0)[12:-1].lower() == "true"
+background_color = re.search('background_color.+?\n', config_text).group(0)[17:-1]
+text_color = re.search('text_color.+?\n', config_text).group(0)[11:-1]
+shape1color = re.search('shape1color.+?\n', config_text).group(0)[12:-1]
+shape2color = re.search('shape2color.+?\n', config_text).group(0)[12:-1]
+shape3color = re.search('shape3color.+?$', config_text).group(0)[12:]
 
+# Initialize Window with constants
+# May be changed depending on future console screen sizes
+#
+window=visual.Window(size=(windowsizex,windowsizey),
+                        units='norm',
+                        color=background_color, colorSpace='rgb',
+                        fullscr=full_screen, allowGUI=False,
+                        )
 
 # Set up devices and events
 clock = core.Clock()
@@ -31,52 +52,34 @@ io=launchHubServer(experiment_code='key_evts',psychopy_monitor_name='default')
 display = io.devices.display
 keyboard = io.devices.keyboard
 mouse=io.devices.mouse
-
-
-# Initialize Window with constants
-# May be changed depending on future console screen sizes
-#
-windowsizex = 800
-windowsizey = 600
-window=visual.Window(size=(windowsizex,windowsizey),
-                        units='norm',
-                        color=[128,128,128], colorSpace='rgb255',
-                        fullscr=False, allowGUI=False,
-                        )
-
 mouseclick = event.Mouse(win=window)
 
 # Instructions
 #
-title_label = visual.TextStim(window, units='norm', text=u'Temp Instructions\nPress CTRL-Q anytime to quit\n\nPress \'p\' to continue',
+title_label = visual.TextStim(window, units='norm', text=u'Remember the sequence of colored blocks.\n\nClick on them in the same order when they appear.\n\nPress CTRL-Q anytime to quit\n\nPress \'p\' to continue',
                          pos = [0,0], height=0.1,
-                         color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
-                         alignVert='center')
-
-second_label = visual.TextStim(window, units='norm', text=u'Please click on the colored blocks in the order that they previously appeared',
-                         pos = [0,0], height=0.1,
-                         color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
+                         color=text_color, colorSpace='rgb',alignHoriz='center',
                          alignVert='center')
 
 # Text Cues
 #
 next_label = visual.TextStim(window, units='norm', text=u'New Round',
                          pos = [0,0], height=0.1,
-                         color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
+                         color=text_color, colorSpace='rgb',alignHoriz='center',
                          alignVert='center')
 
 end_label = visual.TextStim(window, units='norm', text=u'Thank you!\nExiting...',
                          pos = [0,0], height=0.1,
-                         color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
+                         color=text_color, colorSpace='rgb',alignHoriz='center',
                          alignVert='center')
 
 # Color Blocks
 #
-red_rect_stim = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor='red', fillColorSpace='rgb', pos=(-0.5, 0.5))
-green_rect_stim = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor='green', fillColorSpace='rgb', pos=(0.5, 0.5))
-blue_rect_stim = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor='blue', fillColorSpace='rgb', pos=(0.5, -0.5))
+rect_stim1 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape1color, fillColorSpace='rgb', pos=(-0.5, 0.5))
+rect_stim2 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape2color, fillColorSpace='rgb', pos=(0.5, 0.5))
+rect_stim3 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape3color, fillColorSpace='rgb', pos=(0.5, -0.5))
 
-BLOCK_LIST =[red_rect_stim, green_rect_stim, blue_rect_stim]
+BLOCK_LIST =[rect_stim1, rect_stim2, rect_stim3]
 
 # Clear all events from the global and device level ioHub Event Buffers.
 #
@@ -121,9 +124,9 @@ while QUIT_EXP is False:
             exp.addLoop(trial_loop)
             if status != -1:
                 # restart values and indicate new round
-                red_rect_stim.setOpacity(1.0)
-                green_rect_stim.setOpacity(1.0)
-                blue_rect_stim.setOpacity(1.0)
+                rect_stim1.setOpacity(1.0)
+                rect_stim2.setOpacity(1.0)
+                rect_stim3.setOpacity(1.0)
 
                 # display new round label
                 helper.wait(window, 25)
@@ -136,9 +139,9 @@ while QUIT_EXP is False:
                 helper.wait(window, 25)
 
                 # randomize block order and begin new round
-                shapes = [red_rect_stim, green_rect_stim, blue_rect_stim]
+                shapes = [rect_stim1, rect_stim2, rect_stim3]
                 random.shuffle(shapes)
-                status = trial.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, second_label, exp)
+                status = trial.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, text_color, exp)
                 exp.addData('shape1', shapes[0].fillColor)
                 exp.addData('shape2', shapes[1].fillColor)
                 exp.addData('shape3', shapes[2].fillColor)
