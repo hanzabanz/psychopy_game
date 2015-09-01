@@ -1,0 +1,16 @@
+# Experiment Settings
+experiment_name = test
+participant_id = 1
+version = 1.0
+num_reps = 2
+file_name = part1_1
+
+# Display Settings
+windowsizex = 800
+windowsizey = 600
+full_screen = False
+background_color = whitesmoke
+text_color = black
+shape1color = black
+shape2color = royalblue
+shape3color = yellow
