@@ -2,7 +2,7 @@
 experiment_name = test
 participant_id = 1
 version = 1.0
-num_reps = 2
+num_reps = 1
 file_name = part1_1
 
 # Display Settings

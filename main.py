@@ -11,7 +11,8 @@ from psychopy import event
 from psychopy import data
 import re
 
-import trial
+import motor
+import speech
 import helper
 import random
 
@@ -120,6 +121,7 @@ while QUIT_EXP is False:
     if QUIT_EXP == False:
         status = 1
         for num in range(num_reps):
+            # todo: not sure what these names mean since they don't seem to directly tie to anything
             trial_loop = data.TrialHandler(trialList=[], nReps=1, name='trial_loop', method='trial.trial')
             exp.addLoop(trial_loop)
             if status != -1:
@@ -141,7 +143,10 @@ while QUIT_EXP is False:
                 # randomize block order and begin new round
                 shapes = [rect_stim1, rect_stim2, rect_stim3]
                 random.shuffle(shapes)
-                status = trial.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, text_color, exp)
+                status = motor.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, text_color, exp)
+                #status = speech.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, text_color, exp)
+
+                # always add shape colors since they will be relevant in every modality
                 exp.addData('shape1', shapes[0].fillColor)
                 exp.addData('shape2', shapes[1].fillColor)
                 exp.addData('shape3', shapes[2].fillColor)
