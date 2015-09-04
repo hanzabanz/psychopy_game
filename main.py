@@ -13,6 +13,7 @@ import re
 
 import motor
 import speech
+import eye
 import helper
 import random
 
@@ -27,6 +28,10 @@ participant_id = re.search('participant_id.+?\n', config_text).group(0)[15:-1]
 version = re.search('version.+?\n', config_text).group(0)[8:-1]
 num_reps = int(re.search('num_reps.+?\n', config_text).group(0)[9:-1])
 file_name = re.search('file_name.+?\n', config_text).group(0)[10:-1]
+num_blocks = int(re.search('num_blocks.+?\n', config_text).group(0)[11:-1])
+centered = re.search('centered.+?\n', config_text).group(0)[9:-1].lower() == "true"
+trial_type = int(re.search('trial_type.+?\n', config_text).group(0)[11:-1])
+
 #
 # Display Settings
 windowsizex = int(re.search('windowsizex.+?\n', config_text).group(0)[12:-1])
@@ -76,11 +81,18 @@ end_label = visual.TextStim(window, units='norm', text=u'Thank you!\nExiting...'
 
 # Color Blocks
 #
-rect_stim1 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape1color, fillColorSpace='rgb', pos=(-0.5, 0.5))
-rect_stim2 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape2color, fillColorSpace='rgb', pos=(0.5, 0.5))
-rect_stim3 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape3color, fillColorSpace='rgb', pos=(0.5, -0.5))
+if centered:
+    rect_stim1 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape1color, fillColorSpace='rgb', pos=(0,0))
+    rect_stim2 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape2color, fillColorSpace='rgb', pos=(0,0))
+    rect_stim3 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape3color, fillColorSpace='rgb', pos=(0,0))
+else:
+    rect_stim1 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape1color, fillColorSpace='rgb', pos=(-0.5,0.5))
+    rect_stim2 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape2color, fillColorSpace='rgb', pos=(0.5,-0.5))
+    rect_stim3 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor=shape3color, fillColorSpace='rgb', pos=(0.5,0.5))
 
-BLOCK_LIST =[rect_stim1, rect_stim2, rect_stim3]
+# if only one block, center
+if num_blocks == 1:
+    rect_stim1.setPos((0,0))
 
 # Clear all events from the global and device level ioHub Event Buffers.
 #
@@ -108,7 +120,7 @@ while QUIT_EXP is False:
                 QUIT_EXP=True
                 break
 
-    #### FIVE ROUNDS OF BLOCK GAME ####
+    #### TRIALS OF BLOCK GAME ####
     exp = data.ExperimentHandler(name=experiment_name,
                 version=version,
                 extraInfo={'participant':participant_id},
@@ -141,15 +153,24 @@ while QUIT_EXP is False:
                 helper.wait(window, 25)
 
                 # randomize block order and begin new round
-                shapes = [rect_stim1, rect_stim2, rect_stim3]
+                if num_blocks == 3:
+                    shapes = [rect_stim1, rect_stim2, rect_stim3]
+                elif num_blocks == 2:
+                     shapes = [rect_stim1, rect_stim2]
+                elif num_blocks == 1: # automatically centered if only one
+                     shapes = [rect_stim1]
                 random.shuffle(shapes)
-                status = motor.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, text_color, exp)
-                #status = speech.trial(clock, window, io, shapes[0], shapes[1], shapes[2], keyboard, mouseclick, text_color, exp)
+
+                # track types of trial
+                if trial_type == 1:
+                    status = motor.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, centered, exp)
+                elif trial_type == 2:
+                    status = speech.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, exp)
+                elif trial_type == 4:
+                    status = eye.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, exp)
 
                 # always add shape colors since they will be relevant in every modality
-                exp.addData('shape1', shapes[0].fillColor)
-                exp.addData('shape2', shapes[1].fillColor)
-                exp.addData('shape3', shapes[2].fillColor)
+                helper.addShapeData(shapes, exp)
                 exp.addData('correct', status)
                 exp.nextEntry()
                 if status == 1:

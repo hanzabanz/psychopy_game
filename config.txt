@@ -2,8 +2,15 @@
 experiment_name = test
 participant_id = 1
 version = 1.0
-num_reps = 1
 file_name = part1_1
+num_reps = 1
+num_blocks = 1
+centered = False
+trial_type = 2
+
+# 1: motor
+# 2: speech
+# 4: eyetracking
 
 # Display Settings
 windowsizex = 800

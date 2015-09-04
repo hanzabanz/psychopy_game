@@ -9,6 +9,7 @@ Will need combination of event and iohub.mouse for both
 from psychopy import event
 from psychopy import visual
 from psychopy import microphone
+import helper
 
 
 # called on initial flip when all 3 stimuli appear
@@ -20,7 +21,8 @@ def track_speech_time(clock, mouse):
     in_between_time = (clock.getTime() - in_between_time)
     print "%f TIME FOR INITIAL STIMULUS" %(speech_beg_time)
 
-def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color, exp):
+
+def trial(clock, window, io, shapes, keyboard, mouse, text_color, exp):
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'',
                          pos = [-0.5,-0.5], height=0.2,
@@ -34,14 +36,14 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color
                          alignVert='center')
 
     done_label = visual.TextStim(window, units='norm', text=u'Done',
-                         pos = [0,-0.3], height=0.1,
+                         pos = [0,-0.4], height=0.1,
                          color=text_color, colorSpace='rgb255',alignHoriz='center',
                          alignVert='center')
 
     # todo: make fill color configurable
-    done_button = visual.Rect(window, width=0.5, height=0.5, lineColor=(1,1,1), fillColor='blue', fillColorSpace='rgb', pos=(0, 0))
+    done_button = visual.Rect(window, width=0.5, height=0.3, lineColor=(1,1,1), fillColor='blue', fillColorSpace='rgb', pos=(0, -0.4))
 
-    BLOCK_LIST = [second_label, done_label]
+    BLOCK_LIST = [second_label, done_button, done_label]
 
     # Default values
     donetime = -1
@@ -55,27 +57,8 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color
     #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
 
-    # order customized by the order input
-    for frameN in range(350):
-        if QUIT_EXP is True:
-            break
-        if 0 <= frameN < 100:
-            shape1.draw()
-        if 101 <= frameN < 200:
-            shape2.draw()
-        if 201 <= frameN < 300:
-            shape3.draw()
-        # if frameN is > 300, there will just be a pause
-        if frameN == 300:
-            global in_between_time
-            in_between_time = clock.getTime()
-        window.flip()
-        for evt in keyboard.getEvents():
-            demo_timeout_start=evt.time
-            if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
-                QUIT_EXP=True
-                break
-
+    global in_between_time
+    in_between_time = helper.drawSequence(window, shapes, keyboard, clock)
 
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
@@ -88,39 +71,31 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color
     mic = microphone.AudioCapture()
 
     window.callOnFlip(track_speech_time, clock, mouse) # store time right when clicking stimuli is presented for reference
+    window.flip()
 
-    while finished1==False and QUIT_EXP is False and timeout_counter < 1800:
-        # Redraw all blocks and window flip
+    print clock.getTime()
 
-        # display blocks
+    # record for 30 seconds, unless cancelled out
+    mic.record(30, block=False)
+    while mic.recorder.running:
         [s.draw() for s in BLOCK_LIST]
         count_label.draw()
         flip_time=window.flip()
-
-        # todo: shouldn't record so long without refreshing or checking to quit program
-        mic.record(1)
-        print "Finished 1 second recording"
-
         buttons, times = mouse.getPressed(getTime=True)
-        if(buttons[0]):
-            if mouse.isPressedIn(done_button, buttons=[0]):
-                donetime = times[0]
-                finished1 = True
-                break
-
-        # Check if user has quit program
+        if mouse.isPressedIn(done_button, buttons=[0]):
+            mic.stop()
+            QUIT_EXP = True
+            break
         for evt in keyboard.getEvents():
             demo_timeout_start=evt.time
             if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
-                QUIT_EXP=True
+                mic.stop()
+                QUIT_EXP = True
                 break
 
-        # limit to 1800 frames (30 seconds)
-        timeout_counter += 1
+    microphone.switchOff()
 
-        # adjust count_down, to be displayed with the next flip
-        if timeout_counter >= 1500 and timeout_counter % 60 == 0:
-            count_label.setText((1800-timeout_counter)/60)
+    print clock.getTime()
 
     # once the round is finished, use previous counters to calculate total time spent and individual click times
     finish_time = clock.getTime()

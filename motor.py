@@ -4,10 +4,16 @@ __author__ = 'hannah'
 Accurate mouse click timing implemented
 Current mouse implementation means that we can't track the duration of mouse click
 Will need combination of event and iohub.mouse for both
+
+mouse_beg_time: time when all the stimuli appear and the interaction time begins (based on total clock time)
+in_between_time: time between when the last block disappears (so it includes the last pause before second
+    instructions) and when all the blocks actually appear. (based on total clock time)
+
 """
 
 from psychopy import event
 from psychopy import visual
+import helper
 
 
 # called on initial flip when all 3 stimuli appear
@@ -19,7 +25,8 @@ def track_mouse_time(clock, mouse):
     in_between_time = (clock.getTime() - in_between_time)
     print "%f TIME FOR INITIAL STIMULUS" %(mouse_beg_time)
 
-def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color, exp):
+
+def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp):
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'',
                          pos = [-0.5,-0.5], height=0.2,
@@ -30,10 +37,9 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color
                          pos = [0,0], height=0.1,
                          color=text_color, colorSpace='rgb255',alignHoriz='center',
                          alignVert='center')
+
     # Default values
-    shape1time = -1
-    shape2time = -1
-    shape3time = -1
+    mouse_times = [-1, -1, -1]
 
 
     print "\n\n*** NEW TRIAL ***"
@@ -41,33 +47,12 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color
     QUIT_EXP = False
     event.clearEvents()
 
-    BLOCK_LIST =[shape1, shape2, shape3]
-
     # for block display
     #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
 
-    # order customized by the order input
-    for frameN in range(350):
-        if QUIT_EXP is True:
-            break
-        if 0 <= frameN < 100:
-            shape1.draw()
-        if 101 <= frameN < 200:
-            shape2.draw()
-        if 201 <= frameN < 300:
-            shape3.draw()
-        # if frameN is > 300, there will just be a pause
-        if frameN == 300:
-            global in_between_time
-            in_between_time = clock.getTime()
-        window.flip()
-        for evt in keyboard.getEvents():
-            demo_timeout_start=evt.time
-            if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
-                QUIT_EXP=True
-                break
-
+    global in_between_time
+    in_between_time = helper.drawSequence(window, shapes, keyboard, clock)
 
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
@@ -90,33 +75,23 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color
     io.clearEvents()
     finished1 = False
 
+    # changes location of shapes if centered (so that they don't overlap)
+    if centered:
+        helper.adjustShapeLoc(shapes)
+
     window.callOnFlip(track_mouse_time, clock, mouse) # store time right when clicking stimuli is presented for reference
 
     while finished1==False and QUIT_EXP is False and timeout_counter < 1800:
         # Redraw all blocks and window flip
 
         # display blocks
-        [s.draw() for s in BLOCK_LIST]
+        [s.draw() for s in shapes]
         count_label.draw()
         flip_time=window.flip()
 
         # Check for mouse clicks and location
-        buttons, times = mouse.getPressed(getTime=True)
-        if(buttons[0]):
-            if mouse.isPressedIn(shape1, buttons=[0]):
-                if(shape1.opacity != 0.0):
-                    shape1.setOpacity(0.0)
-                shape1time = times[0]
-            if mouse.isPressedIn(shape2, buttons=[0]):
-                if(shape2.opacity != 0.0):
-                    shape2.setOpacity(0.0)
-                shape2time = times[0]
-            if mouse.isPressedIn(shape3, buttons=[0]):
-                if(shape3.opacity != 0.0):
-                    shape3.setOpacity(0.0)
-                shape3time = times[0]
-
-            event.clearEvents()
+        # even if not all present, goes off location
+        helper.checkMouseTimes(mouse, shapes, mouse_times)
 
         # Check if user has quit program
         for evt in keyboard.getEvents():
@@ -126,11 +101,11 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color
                 break
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
-        if shape1.opacity==0.0 and shape2.opacity==0.0 and shape3.opacity==0.0:
+        if helper.checkOpacity(shapes):
             finish_time = clock.getTime()
             total_stimuli_time = finish_time - mouse_beg_time
             finished1=True
-            print "\n%f\t%f\t%f" %(shape1time, shape2time, shape3time)
+            print "\n%f\t%f\t%f" %(mouse_times[0], mouse_times[1], mouse_times[2])
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
 
@@ -146,16 +121,25 @@ def trial(clock, window, io, shape1, shape2, shape3, keyboard, mouse, text_color
         return -1
 
     exp.addData("stimulus_begin_time", mouse_beg_time)
-    exp.addData("time1", shape1time)
-    exp.addData("time2", shape2time)
-    exp.addData("time3", shape3time)
+    exp.addData("in_between_time", in_between_time)
+    exp.addData("time1", mouse_times[0])
+    exp.addData("time2", mouse_times[1])
+    exp.addData("time3", mouse_times[2])
 
     if timeout_counter == 1800:
         return 2
 
     # return status code based on correctness of sequence
-    if(shape3time > shape2time and shape2time > shape1time):
-        return 1 # correct
+    if len(shapes) == 1:
+        return 1
+    elif len(shapes) == 2:
+        if(mouse_times[1] > mouse_times[0]):
+            return 1 # correct
+        else:
+            return 0 # not correct
     else:
-        return 0 # not correct
+        if(mouse_times[2] > mouse_times[1] and mouse_times[1] > mouse_times[0]):
+            return 1 # correct
+        else:
+            return 0 # not correct
 
