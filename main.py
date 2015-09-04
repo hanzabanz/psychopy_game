@@ -130,7 +130,7 @@ while QUIT_EXP is False:
                 saveWideText=True,
                 dataFileName=file_name)
 
-    if QUIT_EXP == False:
+    if QUIT_EXP is False:
         status = 1
         for num in range(num_reps):
             # todo: not sure what these names mean since they don't seem to directly tie to anything
@@ -142,10 +142,15 @@ while QUIT_EXP is False:
                 for frameN in range(175):
                     next_label.draw()
                     window.flip()
-                    if (event.key.lower()=='q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers)):
-                        QUIT_EXP=True
+                    for evt in keyboard.getEvents():
+                        if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
+                            QUIT_EXP=True
+                            break
+                    if QUIT_EXP is True:
                         break
                 helper.wait(window, 25)
+                if QUIT_EXP is True:
+                    break
 
                 # randomize block order and begin new round
                 if num_blocks == 3:

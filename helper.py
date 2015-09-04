@@ -3,14 +3,21 @@ __author__ = 'hannah'
 import random
 from psychopy import core, visual
 
+
 def wait(window, n):
     for frameN in range(n):
         window.flip()
     return
 
-# todo: in between time isn't actually set to when the last stimulus block disappears! should be called the next frame
+
+def getFlipTime(clock):
+    global in_between_time
+    in_between_time = clock.getTime()
+
+
 def drawSequence(window, shapes, keyboard, clock):
     QUIT_EXP = False
+    global in_between_time
     in_between_time = -1
 
     if len(shapes) == 1:
@@ -21,14 +28,13 @@ def drawSequence(window, shapes, keyboard, clock):
                 shapes[0].draw()
             # if frameN is > 300, there will just be a pause
             if frameN == 100:
-                in_between_time = clock.getTime()
+                window.callOnFlip(getFlipTime(clock))
             window.flip()
             for evt in keyboard.getEvents():
                 demo_timeout_start=evt.time
                 if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
                     QUIT_EXP=True
                     break
-        return in_between_time
     elif len(shapes) == 2:
         for frameN in range(250):
             if QUIT_EXP is True:
@@ -39,14 +45,13 @@ def drawSequence(window, shapes, keyboard, clock):
                 shapes[1].draw()
             # if frameN is > 300, there will just be a pause
             if frameN == 225:
-                in_between_time = clock.getTime()
+                window.callOnFlip(getFlipTime(clock))
             window.flip()
             for evt in keyboard.getEvents():
                 demo_timeout_start=evt.time
                 if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
                     QUIT_EXP=True
                     break
-        return in_between_time
     elif len(shapes) == 3:
         for frameN in range(375):
             if QUIT_EXP is True:
@@ -59,14 +64,15 @@ def drawSequence(window, shapes, keyboard, clock):
                 shapes[2].draw()
             # if frameN is > 300, there will just be a pause
             if frameN == 350:
-                in_between_time = clock.getTime()
+                window.callOnFlip(getFlipTime, clock)
             window.flip()
             for evt in keyboard.getEvents():
                 demo_timeout_start=evt.time
                 if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
                     QUIT_EXP=True
                     break
-        return in_between_time
+    global in_between_time
+    return in_between_time
 
 
 def checkMouseTimes(mouse, shapes, mouse_times):
