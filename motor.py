@@ -14,6 +14,7 @@ in_between_time: time between when the last block disappears (so it includes the
 from psychopy import event
 from psychopy import visual
 import helper
+import random
 
 
 # called on initial flip when all 3 stimuli appear
@@ -78,6 +79,11 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
     # changes location of shapes if centered (so that they don't overlap)
     if centered:
         helper.adjustShapeLoc(shapes)
+        possibleLocs =  [(-0.7,0), (0, 0), (0.7, 0)]
+        random.shuffle(possibleLocs)
+        shapes[0].setPos(possibleLocs[0])
+        shapes[1].setPos(possibleLocs[1])
+        shapes[2].setPos(possibleLocs[2])
 
     window.callOnFlip(track_mouse_time, clock, mouse) # store time right when clicking stimuli is presented for reference
 

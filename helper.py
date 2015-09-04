@@ -114,7 +114,7 @@ def addShapeData(shapes, exp):
     exp.addData('shape1', shapes[0].fillColor)
     if(len(shapes) > 1):
         exp.addData('shape2', shapes[1].fillColor)
-        if (len(shapes) < 2):
+        if (len(shapes) > 2):
             exp.addData('shape3', shapes[2].fillColor)
 
 
@@ -127,6 +127,21 @@ def adjustShapeLoc(shapes):
         shapes[1].setPos((0, 0))
         shapes[2].setPos((0.7, 0))
 
+
+def resetTrial(shapes, centered):
+    [s.setOpacity(1.0) for s in shapes]
+    if centered:
+        [s.setPos((0.0)) for s in shapes]
+    else:
+        if len(shapes) == 1:
+            shapes[0].setPos((0.0))
+        elif len(shapes) == 2:
+            shapes[0].setPos((-0.5,0.5))
+            shapes[1].setPos((0.5,-0.5))
+        elif len(shapes) == 3:
+            shapes[0].setPos((-0.5,0.5))
+            shapes[1].setPos((0.5,-0.5))
+            shapes[2].setPos((0.5,0.5))
 
 
 def testTimes(window):

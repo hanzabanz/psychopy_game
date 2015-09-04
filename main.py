@@ -137,11 +137,6 @@ while QUIT_EXP is False:
             trial_loop = data.TrialHandler(trialList=[], nReps=1, name='trial_loop', method='trial.trial')
             exp.addLoop(trial_loop)
             if status != -1:
-                # restart values and indicate new round
-                rect_stim1.setOpacity(1.0)
-                rect_stim2.setOpacity(1.0)
-                rect_stim3.setOpacity(1.0)
-
                 # display new round label
                 helper.wait(window, 25)
                 for frameN in range(175):
@@ -161,6 +156,11 @@ while QUIT_EXP is False:
                      shapes = [rect_stim1]
                 random.shuffle(shapes)
 
+                # restart values and indicate new round
+                helper.resetTrial(shapes, centered)
+
+                helper.addShapeData(shapes, exp)
+
                 # track types of trial
                 if trial_type == 1:
                     status = motor.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, centered, exp)
@@ -170,7 +170,6 @@ while QUIT_EXP is False:
                     status = eye.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, exp)
 
                 # always add shape colors since they will be relevant in every modality
-                helper.addShapeData(shapes, exp)
                 exp.addData('correct', status)
                 exp.nextEntry()
                 if status == 1:
@@ -185,7 +184,7 @@ while QUIT_EXP is False:
     # if trial loop is finished successfully, then end the program
     QUIT_EXP=True
 
-    for frameN in range(150):
+    for frameN in range(50):
         end_label.draw()
         window.flip()
 
