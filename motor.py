@@ -28,20 +28,23 @@ def track_mouse_time(clock, mouse):
 
 
 def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp):
-    # Text values
-    count_label = visual.TextStim(window, units='norm', text=u'',
-                         pos = [-0.5,-0.5], height=0.2,
-                         color=text_color, colorSpace='rgb255',alignHoriz='center',
-                         alignVert='center')
+    # Wait time
+    wait_time = 10
+    warning_time = 5
 
-    second_label = visual.TextStim(window, units='norm', text=u'Please click on the colored blocks in the order that they previously appeared',
-                         pos = [0,0], height=0.1,
-                         color=text_color, colorSpace='rgb255',alignHoriz='center',
-                         alignVert='center')
+    # Text values
+    count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
+                                  colorSpace='rgb255',alignHoriz='center', alignVert='center')
+
+    second_label = visual.TextStim(window, units='norm', text=u'Please click on the colored blocks in the order that '
+                                                              u'they previously appeared',
+                                   pos = [0,0], height=0.1, color=text_color, colorSpace='rgb255',alignHoriz='center',
+                                   alignVert='center')
 
     # Default values
     mouse_times = [-1, -1, -1]
 
+    length = len(shapes)
 
     print "\n\n*** NEW TRIAL ***"
 
@@ -66,8 +69,8 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
         window.flip()
         for evt in keyboard.getEvents():
             demo_timeout_start=evt.time
-            if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
-                QUIT_EXP=True
+            if evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
+                QUIT_EXP = True
                 break
 
     # for block interaction
@@ -77,15 +80,22 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
     finished1 = False
 
     # changes location of shapes if centered (so that they don't overlap)
-    if centered:
+    if centered and length > 1:
         helper.adjustShapeLoc(shapes)
-        possibleLocs =  [(-0.7,0), (0, 0), (0.7, 0)]
-        random.shuffle(possibleLocs)
-        shapes[0].setPos(possibleLocs[0])
-        shapes[1].setPos(possibleLocs[1])
-        shapes[2].setPos(possibleLocs[2])
+        if length == 2:
+            possibleLocs = [(-0.3, 0), (0.3, 0)]
+            random.shuffle(possibleLocs)
+            shapes[0].setPos(possibleLocs[0])
+            shapes[1].setPos(possibleLocs[1])
+        if length == 3:
+            possibleLocs = [(-0.7, 0), (0, 0), (0.7, 0)]
+            random.shuffle(possibleLocs)
+            shapes[0].setPos(possibleLocs[0])
+            shapes[1].setPos(possibleLocs[1])
+            shapes[2].setPos(possibleLocs[2])
 
-    window.callOnFlip(track_mouse_time, clock, mouse) # store time right when clicking stimuli is presented for reference
+    # store time right when clicking stimuli is presented for reference
+    window.callOnFlip(track_mouse_time, clock, mouse)
 
     while finished1==False and QUIT_EXP is False and timeout_counter < 1800:
         # Redraw all blocks and window flip
@@ -93,7 +103,7 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
         # display blocks
         [s.draw() for s in shapes]
         count_label.draw()
-        flip_time=window.flip()
+        flip_time = window.flip()
 
         # Check for mouse clicks and location
         # even if not all present, goes off location
@@ -102,15 +112,15 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
         # Check if user has quit program
         for evt in keyboard.getEvents():
             demo_timeout_start=evt.time
-            if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
-                QUIT_EXP=True
+            if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
+                QUIT_EXP = True
                 break
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if helper.checkOpacity(shapes):
             finish_time = clock.getTime()
             total_stimuli_time = finish_time - mouse_beg_time
-            finished1=True
+            finished1 = True
             print "\n%f\t%f\t%f" %(mouse_times[0], mouse_times[1], mouse_times[2])
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
@@ -119,11 +129,11 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
         timeout_counter += 1
 
         # adjust count_down, to be displayed with the next flip
-        if timeout_counter >= 1500 and timeout_counter % 60 == 0:
-            count_label.setText((1800-timeout_counter)/60)
+        if timeout_counter >= ((wait_time - warning_time)*60) and timeout_counter % 60 == 0:
+            count_label.setText(((wait_time*60)-timeout_counter)/60)
 
 
-    if QUIT_EXP == True:
+    if QUIT_EXP is True:
         return -1
 
     exp.addData("stimulus_begin_time", mouse_beg_time)
@@ -132,20 +142,20 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
     exp.addData("time2", mouse_times[1])
     exp.addData("time3", mouse_times[2])
 
-    if timeout_counter == 1800:
+    if timeout_counter == wait_time*60:
         return 2
 
     # return status code based on correctness of sequence
-    if len(shapes) == 1:
+    if length == 1:
         return 1
-    elif len(shapes) == 2:
-        if(mouse_times[1] > mouse_times[0]):
-            return 1 # correct
+    elif length == 2:
+        if mouse_times[1] > mouse_times[0]:
+            return 1  # correct
         else:
-            return 0 # not correct
-    else:
-        if(mouse_times[2] > mouse_times[1] and mouse_times[1] > mouse_times[0]):
-            return 1 # correct
+            return 0  # not correct
+    elif length == 3:
+        if mouse_times[0] < mouse_times[1] < mouse_times[2]:
+            return 1  # correct
         else:
-            return 0 # not correct
+            return 0  # not correct
 

@@ -3,14 +3,20 @@ experiment_name = test
 participant_id = 1
 version = 1.0
 file_name = part1_1
-num_reps = 2
-num_blocks = 3
-centered = True
-trial_type = 1
 
-# 1: motor
-# 2: speech
-# 4: eyetracking
+
+# Trial Settings
+num_reps_motor = 0
+num_blocks_motor = 2
+
+num_reps_speech = 1
+num_blocks_speech = 2
+
+num_reps_eye = 0
+num_blocks_eye = 3
+
+centered = False
+
 
 # Display Settings
 windowsizex = 800

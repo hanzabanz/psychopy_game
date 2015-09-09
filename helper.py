@@ -28,7 +28,7 @@ def drawSequence(window, shapes, keyboard, clock):
                 shapes[0].draw()
             # if frameN is > 300, there will just be a pause
             if frameN == 100:
-                window.callOnFlip(getFlipTime(clock))
+                window.callOnFlip(getFlipTime, clock)
             window.flip()
             for evt in keyboard.getEvents():
                 demo_timeout_start=evt.time
@@ -45,7 +45,7 @@ def drawSequence(window, shapes, keyboard, clock):
                 shapes[1].draw()
             # if frameN is > 300, there will just be a pause
             if frameN == 225:
-                window.callOnFlip(getFlipTime(clock))
+                window.callOnFlip(getFlipTime, clock)
             window.flip()
             for evt in keyboard.getEvents():
                 demo_timeout_start=evt.time
@@ -71,6 +71,7 @@ def drawSequence(window, shapes, keyboard, clock):
                 if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
                     QUIT_EXP=True
                     break
+
     global in_between_time
     return in_between_time
 
@@ -115,6 +116,7 @@ def checkOpacity(shapes):
         if shape.opacity != 0.0:
             return False
     return True
+
 
 def addShapeData(shapes, exp):
     exp.addData('shape1', shapes[0].fillColor)
@@ -172,3 +174,11 @@ def testTimes(window):
     print temp2Clock.getTime()
     print "Statement"
     print temp2Clock.getTime()
+
+    print tempClock.getTime()
+    label.setOpacity(0.0)
+    print tempClock.getTime()
+    if label.opacity == 0.0:
+        print tempClock.getTime()
+    else:
+        print tempClock.getTime()
