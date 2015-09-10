@@ -6,17 +6,25 @@ file_name = part1_1
 
 
 # Trial Settings
-num_reps_motor = 0
-num_blocks_motor = 2
-
-num_reps_speech = 1
-num_blocks_speech = 2
-
-num_reps_eye = 0
-num_blocks_eye = 3
+random_modes = False
+num_random = 3
 
 centered = False
 
+num_reps_motor = 2
+num_blocks_motor = 1
+random_blocks_motor = True
+
+num_reps_speech = 2
+num_blocks_speech = 1
+random_blocks_speech = True
+
+num_reps_eye = 0
+num_blocks_eye = 3
+random_blocks_eye = False
+
+wait_time = 30
+warning_time = 5
 
 # Display Settings
 windowsizex = 800

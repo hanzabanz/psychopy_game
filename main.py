@@ -28,12 +28,21 @@ participant_id = re.search('participant_id.+?\n', config_text).group(0)[15:-1]
 version = re.search('version.+?\n', config_text).group(0)[8:-1]
 file_name = re.search('file_name.+?\n', config_text).group(0)[10:-1]
 
+random_modes = re.search('random_modes.+?\n', config_text).group(0)[13:-1].lower() == "true"
+num_random = int(re.search('num_random.+?\n', config_text).group(0)[11:-1])
+
 num_reps_motor = int(re.search('num_reps_motor.+?\n', config_text).group(0)[15:-1])
 num_blocks_motor = int(re.search('num_blocks_motor.+?\n', config_text).group(0)[17:-1])
+random_blocks_motor = re.search('random_blocks_motor.+?\n', config_text).group(0)[20:-1].lower() == "true"
+
 num_reps_speech = int(re.search('num_reps_speech.+?\n', config_text).group(0)[16:-1])
 num_blocks_speech = int(re.search('num_blocks_speech.+?\n', config_text).group(0)[18:-1])
+random_blocks_speech = re.search('random_blocks_speech.+?\n', config_text).group(0)[21:-1].lower() == "true"
+
 num_reps_eye = int(re.search('num_reps_eye.+?\n', config_text).group(0)[13:-1])
 num_blocks_eye = int(re.search('num_blocks_eye.+?\n', config_text).group(0)[15:-1])
+random_blocks_eye = re.search('random_blocks_eye.+?\n', config_text).group(0)[18:-1].lower() == "true"
+
 
 centered = re.search('centered.+?\n', config_text).group(0)[9:-1].lower() == "true"
 
@@ -126,30 +135,105 @@ while QUIT_EXP is False:
                                  runtimeInfo=None, originPath=None, savePickle=True, saveWideText=True,
                                  dataFileName=file_name)
 
-    for trial_type in range(3):
-        print trial_type
+    if random_modes is False:
+        for trial_type in range(3):
+            if trial_type == 0:
+                name = "motor"
+                num_reps = num_reps_motor
+                if random_blocks_motor:
+                    num_blocks = random.randint(1,3)
+                else:
+                    num_blocks = num_blocks_motor
+            elif trial_type == 1:
+                name = "speech"
+                num_reps = num_reps_speech
+                if random_blocks_speech:
+                    num_blocks = random.randint(1,3)
+                else:
+                    num_blocks = num_blocks_speech
+            elif trial_type == 2:
+                name = "eye"
+                num_reps = num_reps_eye
+                if random_blocks_eye:
+                    num_blocks = random.randint(1,3)
+                else:
+                    num_blocks = num_blocks_eye
 
-        if trial_type == 0:
-            name = "motor"
-            num_reps = num_reps_motor
-            num_blocks = num_blocks_motor
-        elif trial_type == 1:
-            name = "speech"
-            num_reps = num_reps_speech
-            num_blocks = num_blocks_speech
-        elif trial_type == 2:
-            name = "eye"
-            num_reps = num_reps_eye
-            num_blocks = num_blocks_eye
+            if num_blocks == 1:
+                rect_stim1.setPos((0, 0))
 
-        print name
-        print num_reps
-        print num_blocks
+            for num in range(num_reps):
+                if QUIT_EXP is False:
+                    status = 1
+                    trial_loop = data.TrialHandler(trialList=[], nReps=1, name=name)
+                    exp.addLoop(trial_loop)
+                    if status != -1:
+                        # display new round label
+                        helper.wait(window, 25)
+                        for frameN in range(175):
+                            next_label.draw()
+                            window.flip()
+                            for evt in keyboard.getEvents():
+                                if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
+                                    QUIT_EXP=True
+                                    break
+                            if QUIT_EXP is True:
+                                break
+                        helper.wait(window, 25)
+                        if QUIT_EXP is True:
+                            break
 
-        if num_blocks == 1:
-            rect_stim1.setPos((0, 0))
+                        # randomize block order and begin new round
+                        if num_blocks == 3:
+                            shapes = [rect_stim1, rect_stim2, rect_stim3]
+                        elif num_blocks == 2:
+                            shapes = [rect_stim1, rect_stim2]
+                        elif num_blocks == 1: # automatically centered if only one
+                            shapes = [rect_stim1]
+                        random.shuffle(shapes)
 
-        for num in range(num_reps):
+                        # restart values and indicate new round
+                        helper.resetTrial(shapes, centered)
+
+                        # data columns are standardized across modalities
+                        helper.addTrialData(shapes, trial_type, num_blocks, exp)
+
+                        # track types of trial
+                        if trial_type == 0:
+                            status = motor.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, centered, exp)
+                        elif trial_type == 1:
+                            status = speech.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, exp)
+                        elif trial_type == 2:
+                            status = eye.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, exp)
+
+                        # always add shape colors since they will be relevant in every modality
+                        exp.addData('correct', status)
+                        exp.nextEntry()
+                        if status == 1:
+                            print "Correct"
+                        if status == 0:
+                            print "Not Correct"
+                    if status == -1:
+                        QUIT_EXP = True
+                        break
+                if QUIT_EXP is True:
+                    break
+    else:
+        for num in range(num_random):
+            # set random mode and block number
+            trial_type = random.randint(0,2)
+            num_blocks = random.randint(1,3)
+
+            if trial_type == 0:
+                name = "motor"
+            elif trial_type == 1:
+                name = "speech"
+            elif trial_type == 2:
+                name = "eye"
+
+            if num_blocks == 1:
+                rect_stim1.setPos((0, 0))
+
             if QUIT_EXP is False:
                 status = 1
                 trial_loop = data.TrialHandler(trialList=[], nReps=1, name=name)
@@ -182,15 +266,19 @@ while QUIT_EXP is False:
                     # restart values and indicate new round
                     helper.resetTrial(shapes, centered)
 
-                    helper.addShapeData(shapes, exp)
+                    # data columns are standardized across modalities
+                    helper.addTrialData(shapes, trial_type, num_blocks, exp)
 
                     # track types of trial
                     if trial_type == 0:
                         status = motor.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, centered, exp)
+                        print status
                     elif trial_type == 1:
                         status = speech.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, exp)
+                        print status
                     elif trial_type == 2:
                         status = eye.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, exp)
+                        print status
 
                     # always add shape colors since they will be relevant in every modality
                     exp.addData('correct', status)
@@ -209,7 +297,7 @@ while QUIT_EXP is False:
     # if trial loop is finished successfully, then end the program
     QUIT_EXP=True
 
-    for frameN in range(100):
+    for frameN in range(75):
         end_label.draw()
         window.flip()
 

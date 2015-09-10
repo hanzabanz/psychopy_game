@@ -24,7 +24,7 @@ def track_speech_time(clock, mouse):
 
 def trial(clock, window, io, shapes, keyboard, mouse, text_color, exp):
     # Wait time
-    wait_time = 10
+    wait_time = 30
     warning_time = 5
 
     # Text values
@@ -88,7 +88,7 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, exp):
         buttons, times = mouse.getPressed(getTime=True)
         if mouse.isPressedIn(done_button, buttons=[0]):
             mic.stop()
-            QUIT_EXP = True
+            return 0
             break
 
         if timeout_counter >= ((wait_time - warning_time)*60) and timeout_counter % 60 == 0:
@@ -112,6 +112,9 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, exp):
     print "\n%f" %(donetime)
     print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
 
+    exp.addData("stimulus_begin_time", speech_beg_time)
+    exp.addData("in_between_time", in_between_time)
+
     if QUIT_EXP is True:
         return -1
 
@@ -120,7 +123,7 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, exp):
     if timeout_counter == wait_time*60:
         return 2
     if timeout_counter < wait_time*60: # assume finished normally by clicking button
-        return 1
+        return 0
     return -1
 
 

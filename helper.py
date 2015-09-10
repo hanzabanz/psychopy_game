@@ -118,12 +118,21 @@ def checkOpacity(shapes):
     return True
 
 
-def addShapeData(shapes, exp):
+def addTrialData(shapes, trial_type, num_blocks, exp):
+    exp.addData('trial_type', trial_type)
+    exp.addData('num_blocks', num_blocks)
+
     exp.addData('shape1', shapes[0].fillColor)
+    exp.addData('shape2', '')
+    exp.addData('shape3', '')
     if(len(shapes) > 1):
         exp.addData('shape2', shapes[1].fillColor)
         if (len(shapes) > 2):
             exp.addData('shape3', shapes[2].fillColor)
+
+    exp.addData('time1', '')
+    exp.addData('time2', '')
+    exp.addData('time3', '')
 
 
 def adjustShapeLoc(shapes):

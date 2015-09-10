@@ -97,7 +97,7 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
     # store time right when clicking stimuli is presented for reference
     window.callOnFlip(track_mouse_time, clock, mouse)
 
-    while finished1==False and QUIT_EXP is False and timeout_counter < 1800:
+    while finished1==False and QUIT_EXP is False and timeout_counter < wait_time*60:
         # Redraw all blocks and window flip
 
         # display blocks
@@ -125,12 +125,13 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
 
-        # limit to 1800 frames (30 seconds)
+        # limit to wait time
         timeout_counter += 1
 
         # adjust count_down, to be displayed with the next flip
         if timeout_counter >= ((wait_time - warning_time)*60) and timeout_counter % 60 == 0:
             count_label.setText(((wait_time*60)-timeout_counter)/60)
+
 
 
     if QUIT_EXP is True:
