@@ -35,6 +35,8 @@ if __name__ == '__main__':
 
     centered = re.search('centered.+?\n', config_text).group(0)[9:-1].lower() == "true"
 
+    print re.search('num_reps_motor.+?\n', config_text).group(0)
+
     num_reps_motor = int(re.search('num_reps_motor.+?\n', config_text).group(0)[15:-1])
     num_blocks_motor = (re.search('num_blocks_motor.+?\n', config_text).group(0)[17:-1]).split(',')
     random_blocks_motor = re.search('random_blocks_motor.+?\n', config_text).group(0)[20:-1].lower() == "true"

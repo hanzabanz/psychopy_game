@@ -20,9 +20,8 @@ centered = False
 # valid examples: 1,2 or 1,3 or 2
 # invalid examples: 1,4 or 4 or 0
 #
-# If random_modes is False, then the program will cycle through a number of trials, specified by num_reps_motor,
-# using the specified block numbers, num_blocks_motor. If random_blocks_motor is on, then the random number of blocks
-# per trial will be specified.
+# If random_modes is False, then the program will cycle through a number of trials using the specified block numbers.
+# If random_blocks_motor is on, then the random number of blocks per trial will be specified.
 # The same process will be repeated for speech and eye. num_reps_x can be set to 0 in order to indicate skipping.
 
 num_reps_motor = 2
