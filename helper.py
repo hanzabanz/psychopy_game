@@ -176,12 +176,13 @@ def displayNewRound(window, next_label, keyboard, QUIT_EXP):
 
 
 def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
+    int_num_blocks = int(num_blocks)
     # randomize block order and begin new round
-    if num_blocks == 3:
+    if int_num_blocks == 3:
         shapes = [rect_stim1, rect_stim2, rect_stim3]
-    elif num_blocks == 2:
+    elif int_num_blocks == 2:
         shapes = [rect_stim1, rect_stim2]
-    elif num_blocks == 1: # automatically centered if only one
+    elif int_num_blocks == 1: # automatically centered if only one
         shapes = [rect_stim1]
     random.shuffle(shapes)
     return shapes

@@ -28,6 +28,11 @@ def track_mouse_time(clock, mouse):
 
 
 def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
+    mouse_beg_time = -1
+    global in_between_time
+    in_between_time = -1
+    total_stimuli_time = -1
+
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
@@ -106,11 +111,11 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, wait
         helper.checkMouseTimes(mouse, shapes, mouse_times)
 
         # Check if user has quit program
-        for evt in keyboard.getEvents():
-            demo_timeout_start=evt.time
-            if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
-                QUIT_EXP = True
-                break
+        # for evt in keyboard.getEvents():
+        #     demo_timeout_start=evt.time
+        #     if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
+        #         QUIT_EXP = True
+        #         break
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if helper.checkOpacity(shapes):

@@ -143,35 +143,30 @@ if __name__ == '__main__':
                 if trial_type == 0:
                     name = "motor"
                     num_reps = num_reps_motor
-                    if random_blocks_motor:
-                        num_blocks = random.randint(1,3)
-                    else:
-                        if len(num_blocks_motor) == 1:
-                            num_blocks = num_blocks_motor
-                        else:
-                            num_blocks = random.sample(num_blocks_motor, 1)[0]
+                    temp_blocks = num_blocks_motor
+                    random_blocks_var = random_blocks_motor
                 elif trial_type == 1:
                     name = "speech"
                     num_reps = num_reps_speech
-                    if random_blocks_speech:
-                        num_blocks = random.randint(1,3)
-                    else:
-                        if len(num_blocks_speech) == 1:
-                            num_blocks = num_blocks_speech
-                        else:
-                            num_blocks = random.sample(num_blocks_speech, 1)[0]
+                    temp_blocks = num_blocks_speech
+                    random_blocks_var = random_blocks_speech
                 elif trial_type == 2:
                     name = "eye"
                     num_reps = num_reps_eye
-                    if random_blocks_eye:
-                        num_blocks = random.randint(1,3)
-                    else:
-                        if len(num_blocks_eye) == 1:
-                            num_blocks = num_blocks_eye
-                        else:
-                            num_blocks = random.sample(num_blocks_eye, 1)[0]
+                    temp_blocks = num_blocks_eye
+                    random_blocks_var = random_blocks_eye
 
                 for num in range(num_reps):
+                    # assign the random variables
+                    if random_blocks_var:
+                        num_blocks = random.randint(1,3)
+                    else:
+                        if len(temp_blocks) == 1:
+                            num_blocks = temp_blocks[0]
+                        else:
+                            num_blocks = random.sample(temp_blocks, 1)[0]
+
+                    # begin trial set up
                     if QUIT_EXP is False:
                         status = 1
                         trial_loop = data.TrialHandler(trialList=[], nReps=1, name=name)
