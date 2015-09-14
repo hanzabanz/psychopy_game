@@ -1,0 +1,13 @@
+import main
+import unittest
+
+class SimpleTestCase(unittest.TestCase):
+    def setUp(self):
+        pass
+
+
+class NextTestCase(SimpleTestCase):
+    pass
+
+
+execfile("main.py")

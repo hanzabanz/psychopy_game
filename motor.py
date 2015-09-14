@@ -27,11 +27,7 @@ def track_mouse_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(mouse_beg_time)
 
 
-def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp):
-    # Wait time
-    wait_time = 10
-    warning_time = 5
-
+def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
@@ -139,6 +135,7 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, exp)
 
     exp.addData("stimulus_begin_time", mouse_beg_time)
     exp.addData("in_between_time", in_between_time)
+    exp.addData("total_stimuli_time", total_stimuli_time)
     exp.addData("time1", mouse_times[0])
     exp.addData("time2", mouse_times[1])
     exp.addData("time3", mouse_times[2])

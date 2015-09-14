@@ -22,11 +22,7 @@ def track_speech_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(speech_beg_time)
 
 
-def trial(clock, window, io, shapes, keyboard, mouse, text_color, exp):
-    # Wait time
-    wait_time = 30
-    warning_time = 5
-
+def trial(clock, window, io, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp):
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'', pos = [0, -0.6], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
@@ -88,7 +84,6 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, exp):
         buttons, times = mouse.getPressed(getTime=True)
         if mouse.isPressedIn(done_button, buttons=[0]):
             mic.stop()
-            return 0
             break
 
         if timeout_counter >= ((wait_time - warning_time)*60) and timeout_counter % 60 == 0:
@@ -108,17 +103,16 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, exp):
     # once the round is finished, use previous counters to calculate total time spent and individual click times
     finish_time = clock.getTime()
     total_stimuli_time = finish_time - speech_beg_time
-    finished1 = True
-    print "\n%f" %(donetime)
+    print "\n%f" %(finish_time)
     print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
 
     exp.addData("stimulus_begin_time", speech_beg_time)
     exp.addData("in_between_time", in_between_time)
+    exp.addData("total_stimuli_time", total_stimuli_time)
+    exp.addData("time1", finish_time)
 
     if QUIT_EXP is True:
         return -1
-
-    exp.addData("time1", donetime)
 
     if timeout_counter == wait_time*60:
         return 2

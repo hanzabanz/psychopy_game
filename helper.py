@@ -161,6 +161,32 @@ def resetTrial(shapes, centered):
             shapes[2].setPos((0.5,0.5))
 
 
+def displayNewRound(window, next_label, keyboard, QUIT_EXP):
+    wait(window, 25)
+    for frameN in range(175):
+        next_label.draw()
+        window.flip()
+        for evt in keyboard.getEvents():
+            if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
+                QUIT_EXP=True
+                break
+        if QUIT_EXP is True:
+            break
+    wait(window, 25)
+
+
+def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
+    # randomize block order and begin new round
+    if num_blocks == 3:
+        shapes = [rect_stim1, rect_stim2, rect_stim3]
+    elif num_blocks == 2:
+        shapes = [rect_stim1, rect_stim2]
+    elif num_blocks == 1: # automatically centered if only one
+        shapes = [rect_stim1]
+    random.shuffle(shapes)
+    return shapes
+
+
 def testTimes(window):
     label = visual.TextStim(window, units='norm', text=u'Label Text',
                          pos = [0,0], height=0.1,
