@@ -35,8 +35,6 @@ if __name__ == '__main__':
 
     centered = re.search('centered.+?\n', config_text).group(0)[9:-1].lower() == "true"
 
-    print re.search('num_reps_motor.+?\n', config_text).group(0)
-
     num_reps_motor = int(re.search('num_reps_motor.+?\n', config_text).group(0)[15:-1])
     num_blocks_motor = (re.search('num_blocks_motor.+?\n', config_text).group(0)[17:-1]).split(',')
     random_blocks_motor = re.search('random_blocks_motor.+?\n', config_text).group(0)[20:-1].lower() == "true"
@@ -80,9 +78,17 @@ if __name__ == '__main__':
     #
     title_label = visual.TextStim(window, units='norm', text=u'Remember the sequence of colored blocks.\n\nClick on them in'
                                                              u' the same order when they appear.\n\nPress CTRL-Q anytime to'
-                                                             u' quit\n\nPress \'p\' to continue',
-                                  pos=[0,0], height=0.1, color=text_color, colorSpace='rgb',alignHoriz='center',
+                                                             u' quit',
+                                  pos=[0,0.2], height=0.1, color=text_color, colorSpace='rgb',alignHoriz='center',
                                   alignVert='center')
+
+    continue_label = visual.TextStim(window, units='norm', text=u'Continue',
+                                  pos=[0,-0.6], height=0.1, color=text_color, colorSpace='rgb',alignHoriz='center',
+                                  alignVert='center')
+    # Button
+    #
+    continue_button = visual.Rect(window, width=0.5, height=0.2, lineColor=(0, 0, 0), lineWidth=2,
+                              lineColorSpace='rgb', pos=(0, -0.6))
 
     # Text Cues
     #
@@ -120,16 +126,21 @@ if __name__ == '__main__':
         # for instruction page
         #
         title_label.draw()
+        continue_label.draw()
+        continue_button.draw()
         window.flip()
         io.clearEvents('all')
 
-        FINISH_INSTR=False
+        FINISH_INSTR = False
         while FINISH_INSTR is False and QUIT_EXP is False:
             for event in keyboard.getEvents():
-                if event.key == 'p':
-                    FINISH_INSTR = True
                 if event.key.lower() == 'q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers):
                     QUIT_EXP=True
+                    break
+            buttons = mouseclick.getPressed()
+            if buttons[0]:
+                if mouseclick.isPressedIn(continue_button, buttons=[0]):
+                    FINISH_INSTR
                     break
 
         #### TRIALS OF BLOCK GAME ####
@@ -177,11 +188,14 @@ if __name__ == '__main__':
                             if QUIT_EXP is True:
                                 break
 
+                            # restart values and indicate new round
+                            shapes = [rect_stim1, rect_stim2, rect_stim3]
+                            helper.resetTrial(shapes, centered)
+
                             # randomize block order and begin new round
                             shapes = helper.randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3)
-
-                            # restart values and indicate new round
-                            helper.resetTrial(shapes, centered)
+                            if len(shapes) == 1:
+                                shapes[0].setPos((0.0))
 
                             # data columns are standardized across modalities
                             helper.addTrialData(shapes, trial_type, num_blocks, exp)
@@ -213,8 +227,10 @@ if __name__ == '__main__':
                     trial_array.append(1)
                 if num_reps_eye != -1:
                     trial_array.append(2)
+                if len(trial_array) == 0:
+                    print "No trial modalities enabled."
+                    break
                 trial_type = random.sample(trial_array, 1)[0]
-                print trial_type
 
                 num_blocks = random.randint(1,3)
                 # or use: num_blocks = random.sample([1,2,3], 1)[0]
@@ -235,11 +251,14 @@ if __name__ == '__main__':
                         if QUIT_EXP is True:
                             break
 
+                        # restart values and indicate new round
+                        shapes = [rect_stim1, rect_stim2, rect_stim3]
+                        helper.resetTrial(shapes, centered)
+
                         # randomize block order and begin new round
                         shapes = helper.randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3)
-
-                        # restart values and indicate new round
-                        helper.resetTrial(shapes, centered)
+                        if len(shapes) == 1:
+                            shapes[0].setPos((0.0))
 
                         # data columns are standardized across modalities
                         helper.addTrialData(shapes, trial_type, num_blocks, exp)
@@ -247,13 +266,10 @@ if __name__ == '__main__':
                         # track types of trial
                         if trial_type == 0:
                             status = motor.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp)
-                            print status
                         elif trial_type == 1:
                             status = speech.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
-                            print status
                         elif trial_type == 2:
                             status = eye.trial(clock, window, io, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
-                            print status
 
                         # always add shape colors since they will be relevant in every modality
                         exp.addData('correct', status)
