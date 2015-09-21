@@ -84,30 +84,36 @@ def checkMouseTimes(mouse, shapes, mouse_times):
                 if(shapes[0].opacity != 0.0):
                     shapes[0].setOpacity(0.0)
                 mouse_times[0] = times[0]
+                return
     elif len(shapes) == 2:
         if(buttons[0]):
             if mouse.isPressedIn(shapes[0], buttons=[0]):
                 if(shapes[0].opacity != 0.0):
                     shapes[0].setOpacity(0.0)
                 mouse_times[0] = times[0]
+                return
             if mouse.isPressedIn(shapes[1], buttons=[0]):
                 if(shapes[1].opacity != 0.0):
                     shapes[1].setOpacity(0.0)
                 mouse_times[1] = times[0]
+                return
     elif len(shapes) == 3:
         if(buttons[0]):
             if mouse.isPressedIn(shapes[0], buttons=[0]):
                 if(shapes[0].opacity != 0.0):
                     shapes[0].setOpacity(0.0)
                 mouse_times[0] = times[0]
+                return
             if mouse.isPressedIn(shapes[1], buttons=[0]):
                 if(shapes[1].opacity != 0.0):
                     shapes[1].setOpacity(0.0)
                 mouse_times[1] = times[0]
+                return
             if mouse.isPressedIn(shapes[2], buttons=[0]):
                 if(shapes[2].opacity != 0.0):
                     shapes[2].setOpacity(0.0)
                 mouse_times[2] = times[0]
+                return
     return 0
 
 
@@ -186,35 +192,3 @@ def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
         shapes = [rect_stim1]
     random.shuffle(shapes)
     return shapes
-
-
-def testTimes(window):
-    label = visual.TextStim(window, units='norm', text=u'Label Text',
-                         pos = [0,0], height=0.1,
-                         color=[0.5,0.2,0.5], colorSpace='rgb',alignHoriz='center',
-                         alignVert='center')
-
-    tempClock = core.Clock()
-    print tempClock.getTime()
-    label.draw()
-    window.flip()
-    print tempClock.getTime()
-    label.draw()
-    print tempClock.getTime()
-    window.flip()
-    print tempClock.getTime()
-    label.draw()
-    print tempClock.getTime()
-
-    temp2Clock = core.Clock()
-    print temp2Clock.getTime()
-    print "Statement"
-    print temp2Clock.getTime()
-
-    print tempClock.getTime()
-    label.setOpacity(0.0)
-    print tempClock.getTime()
-    if label.opacity == 0.0:
-        print tempClock.getTime()
-    else:
-        print tempClock.getTime()
