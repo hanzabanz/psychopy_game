@@ -27,7 +27,7 @@ def track_mouse_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(mouse_beg_time)
 
 
-def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
+def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
     mouse_beg_time = -1
     global in_between_time
     in_between_time = -1
@@ -62,7 +62,7 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, wait
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
     # second instructions
-    io.clearEvents('all')
+    self.hub.clearEvents('all')
     for frameN in range(150):
         if QUIT_EXP is True:
             break
@@ -77,7 +77,7 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, centered, wait
     # for block interaction
     #
     timeout_counter = 0
-    io.clearEvents()
+    self.hub.clearEvents()
     finished1 = False
 
     # changes location of shapes if centered (so that they don't overlap)

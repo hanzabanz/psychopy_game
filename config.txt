@@ -9,7 +9,7 @@ file_name = part1_1
 # Randomizes modalities and number of blocks for a specified number of trials.
 # Modalities can be turned off by setting num_reps_x = -1 so that the randomization will only occur between
 # enabled modes.
-random_modes = True
+random_modes = False
 num_random = 5
 
 # Whether or not to have blocks appear only in the center or use the corners.
@@ -25,7 +25,7 @@ centered = True
 # If random_blocks_x is on, then the random number of blocks per trial will be specified.
 # The same process will be repeated for speech and eye. num_reps_x can be set to 0 in order to indicate skipping.
 
-num_reps_motor = 5
+num_reps_motor = -1
 num_blocks_motor = 1,2
 random_blocks_motor = False
 
@@ -33,7 +33,7 @@ num_reps_speech = -1
 num_blocks_speech = 3
 random_blocks_speech = True
 
-num_reps_eye = -1
+num_reps_eye = 1
 num_blocks_eye = 2
 random_blocks_eye = True
 

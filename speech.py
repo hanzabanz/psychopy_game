@@ -22,7 +22,7 @@ def track_speech_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(speech_beg_time)
 
 
-def trial(clock, window, io, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp):
+def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp):
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'', pos = [0, -0.6], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
@@ -61,7 +61,7 @@ def trial(clock, window, io, shapes, keyboard, mouse, text_color, wait_time, war
     # for block interaction
     #
     timeout_counter = 0
-    io.clearEvents()
+    self.hub.clearEvents()
     finished1 = False
     microphone.switchOn(sampleRate=16000)
     mic = microphone.AudioCapture()
