@@ -81,8 +81,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         display = self.devices.display
         keyboard = self.devices.keyboard
         mouse = self.devices.mouse
-        mouse.getPos()
         mouseclick = evt.Mouse(win=window)
+        mouseclick.getPos()
 
         # Instructions
         #
@@ -311,7 +311,7 @@ if __name__ == "__main__":
 
     def main():
 
-        runtime=ExperimentRuntime("C:\Users\hannah\PycharmProjects\psychopy_game", "experiment_config.yaml")
+        runtime=ExperimentRuntime("", "experiment_config.yaml")
         runtime.start("Tobii Technologies EyeX Tracker")
         print "here1"
 
