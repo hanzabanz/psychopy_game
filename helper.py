@@ -83,16 +83,22 @@ def checkMouseTimes(mouse, shapes, mouse_times, clock):
             mouse_times[0] = times[0]
             print times[0]
             print clock.getTime()
+            if(shapes[0].opacity != 0.0):
+                shapes[0].setOpacity(0.0)
         elif shapes[1].contains(mouse):
             buttons, times = mouse.getPressed(getTime=True)
             mouse_times[1] = times[0]
             print times[0]
             print clock.getTime()
+            if(shapes[1].opacity != 0.0):
+                shapes[1].setOpacity(0.0)
         elif shapes[2].contains(mouse):
             buttons, times = mouse.getPressed(getTime=True)
             mouse_times[2] = times[0]
             print times[0]
             print clock.getTime()
+            if(shapes[2].opacity != 0.0):
+                shapes[2].setOpacity(0.0)
     mouse.getPos()
     return 0
 
