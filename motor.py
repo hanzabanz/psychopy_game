@@ -97,7 +97,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
 
         # Check for mouse clicks and location
         # even if not all present, goes off location
-        helper.checkMouseTimes(mouse, shapes, mouse_times)
+        helper.checkMouseTimes(mouse, shapes, mouse_times, clock)
 
         # Check if user has quit program
         # for evt in keyboard.getEvents():

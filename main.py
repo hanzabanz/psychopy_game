@@ -81,6 +81,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         display = self.devices.display
         keyboard = self.devices.keyboard
         mouse = self.devices.mouse
+        mouse.getPos()
         mouseclick = evt.Mouse(win=window)
 
         # Instructions
