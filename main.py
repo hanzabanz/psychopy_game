@@ -216,7 +216,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                                     status = speech.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
                                 elif trial_type == 2:
                                     print "here"
-                                    status = eye.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
+                                    status = eye.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp)
 
                                     #eye.main(io)
 

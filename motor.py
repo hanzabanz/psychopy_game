@@ -83,17 +83,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     # changes location of shapes if centered (so that they don't overlap)
     if centered and length > 1:
         helper.adjustShapeLoc(shapes)
-        if length == 2:
-            possibleLocs = [(-0.3, 0), (0.3, 0)]
-            random.shuffle(possibleLocs)
-            shapes[0].setPos(possibleLocs[0])
-            shapes[1].setPos(possibleLocs[1])
-        if length == 3:
-            possibleLocs = [(-0.7, 0), (0, 0), (0.7, 0)]
-            random.shuffle(possibleLocs)
-            shapes[0].setPos(possibleLocs[0])
-            shapes[1].setPos(possibleLocs[1])
-            shapes[2].setPos(possibleLocs[2])
 
     # store time right when clicking stimuli is presented for reference
     window.callOnFlip(track_mouse_time, clock, mouse)

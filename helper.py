@@ -142,13 +142,18 @@ def addTrialData(shapes, trial_type, num_blocks, exp):
 
 
 def adjustShapeLoc(shapes):
-    if len(shapes) == 2:
-        shapes[0].setPos((-0.3,0))
-        shapes[1].setPos((0.3, 0))
-    if len(shapes) == 3:
-        shapes[0].setPos((-0.7,0))
-        shapes[1].setPos((0, 0))
-        shapes[2].setPos((0.7, 0))
+    length = len(shapes)
+    if length == 2:
+        possibleLocs = [(-0.3, 0), (0.3, 0)]
+        random.shuffle(possibleLocs)
+        shapes[0].setPos(possibleLocs[0])
+        shapes[1].setPos(possibleLocs[1])
+    if length == 3:
+        possibleLocs = [(-0.7, 0), (0, 0), (0.7, 0)]
+        random.shuffle(possibleLocs)
+        shapes[0].setPos(possibleLocs[0])
+        shapes[1].setPos(possibleLocs[1])
+        shapes[2].setPos(possibleLocs[2])
 
 
 def resetTrial(shapes, centered):
@@ -192,3 +197,28 @@ def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
         shapes = [rect_stim1]
     random.shuffle(shapes)
     return shapes
+
+def pos_conv(window, a):
+    return (window/4)*a
+
+def unit_conv(window_size, size):
+    return window_size/(2*(1/size))
+
+def pix_conv(window_w, window_h, w, h, a, b):
+    if a != 0:
+        a_sign = a/abs(a)
+        left = (pos_conv(window_w, a) - unit_conv(window_w, w)) * -a_sign
+        right = (pos_conv(window_w, a) + unit_conv(window_w, w)) * a_sign
+    else:
+        left = (pos_conv(window_w, a) - unit_conv(window_w, w))
+        right = (pos_conv(window_w, a) + unit_conv(window_w, w))
+
+    if b != 0:
+        b_sign = b/abs(b)
+        top = (pos_conv(window_h, b) + unit_conv(window_h, h)) * b_sign
+        bottom = (pos_conv(window_h, b) - unit_conv(window_h, h)) * -b_sign
+    else:
+        top = (pos_conv(window_h, b) + unit_conv(window_h, h))
+        bottom = (pos_conv(window_h, b) - unit_conv(window_h, h))
+
+    return (left, right, top, bottom)
