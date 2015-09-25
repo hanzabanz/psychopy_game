@@ -1,21 +1,16 @@
 __author__ = 'hannah'
 
-from psychopy import visual, core
+from psychopy import visual
 import helper
-import random
 
 
 def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp):
-    # Let's make some short-cuts to the devices we will be using in this 'experiment'.
     tracker=self.hub.devices.tracker
-
-    # Start by running the eye tracker default setup procedure.
     tracker.runSetupProcedure()
 
-
-    # Create a psychopy window, full screen resolution, full screen mode...
+    # Create visuals and texts
     #
-    gaze_dot =visual.GratingStim(window,tex=None, mask="gauss",
+    gaze_dot = visual.GratingStim(window,tex=None, mask="gauss",
                                  pos=(0,0 ),size=(0.1,0.1),color='green',
                                                     units='norm')
 
@@ -46,15 +41,6 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
     instructions_text_stim.draw()
     window.flip()
 
-    start_trial=False
-
-
-    # So request to start trial has occurred...
-    # Clear the screen, start recording eye data, and clear all events
-    # received to far.
-    #
-    flip_time=window.flip()
-    self.hub.sendMessageEvent(text="TRIAL_START",sec_time=flip_time)
     self.hub.clearEvents('all')
     tracker.setRecordingState(True)
 
@@ -78,13 +64,12 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
     #
     run_trial=True
     while run_trial is True and timeout_counter < wait_time*60:
-        # Get the latest gaze position in dispolay coord space..
+        # Get the latest gaze position
         #
         gpos=tracker.getLastGazePosition()
         if not isinstance(gpos,(tuple,list)):
             continue
 
-        noshape = False
         for num in range(length):
             s = shapes[num]
             if track_array[num] == -1:
@@ -105,9 +90,6 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
                     track_array[num] = 0
                     time_array[num] = -1
                 print "Updated for Shape #%d to %d" %(num, track_array[num])
-                noshape = True
-
-        #print "Not in any shape"
 
         if isinstance(gpos,(tuple,list)):
             # Adjusting eye tracking values to match norm units
@@ -117,13 +99,11 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
             [s.draw() for s in shapes]
             gaze_dot.draw()
         else:
-            # Otherwise just draw the background image.
-            #
             [s.draw() for s in shapes]
 
         count_label.draw()
 
-        flip_time=window.flip()
+        window.flip()
 
         if helper.checkOpacity(shapes):
             finish_time = clock.getTime()
@@ -137,11 +117,8 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
             count_label.setText(((wait_time*60)-timeout_counter)/60)
 
 
-    flip_time=window.flip()
+    window.flip()
     tracker.setRecordingState(False)
 
     self.hub.clearEvents('all')
-
-    # Disconnect the eye tracking device.
-    #
     tracker.setConnectionState(False)
