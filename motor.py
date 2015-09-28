@@ -14,7 +14,6 @@ in_between_time: time between when the last block disappears (so it includes the
 from psychopy import event
 from psychopy import visual
 import helper
-import random
 
 
 # called on initial flip when all 3 stimuli appear
@@ -98,13 +97,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         # Check for mouse clicks and location
         # even if not all present, goes off location
         helper.checkMouseTimes(mouse, shapes, mouse_times, clock)
-
-        # Check if user has quit program
-        # for evt in keyboard.getEvents():
-        #     demo_timeout_start=evt.time
-        #     if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
-        #         QUIT_EXP = True
-        #         break
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if helper.checkOpacity(shapes):

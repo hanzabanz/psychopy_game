@@ -147,10 +147,12 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                     if event.key.lower() == 'q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers):
                         QUIT_EXP=True
                         break
-                buttons = mouseclick.getPressed()
-                if buttons[0]:
-                    if mouseclick.isPressedIn(continue_button, buttons=[0]):
-                        FINISH_INSTR
+
+                if mouse.mouseMoved():
+                    if continue_button.contains(mouse):
+                        buttons, times = mouse.getPressed(getTime=True)
+                        continue_time = times[0]
+                        FINISH_INSTR = True
                         break
 
             #### TRIALS OF BLOCK GAME ####
@@ -278,11 +280,11 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
                             # track types of trial
                             if trial_type == 0:
-                                status = motor.trial(clock, window, self, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp)
+                                status = motor.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp)
                             elif trial_type == 1:
-                                status = speech.trial(clock, window, self, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
+                                status = speech.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
                             elif trial_type == 2:
-                                status = eye.trial(self, clock, window, self, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
+                                status = eye.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
 
                             # always add shape colors since they will be relevant in every modality
                             exp.addData('correct', status)
