@@ -141,12 +141,21 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                         QUIT_EXP=True
                         break
 
+                # if mouse.mouseMoved():
+                #     if continue_button.contains(mouse):
+                #         buttons, times = mouse.getPressed(getTime=True)
+                #         continue_time = clock.getTime()
+                #         FINISH_INSTR = True
+                #         break
+
+
                 if mouse.mouseMoved():
+                    print "mouse moved"
                     if continue_button.contains(mouse):
-                        buttons, times = mouse.getPressed(getTime=True)
-                        continue_time = times[0]
-                        FINISH_INSTR = True
-                        break
+                        print "continue button contains mouse"
+                        continue_time = mouse.mouseMoveTime()
+                        print mouse.mouseMoveTime()
+                        print clock.getTime()
 
             #### TRIALS OF BLOCK GAME ####
             exp = data.ExperimentHandler(name=experiment_name, version=version, extraInfo={'participant':participant_id},
