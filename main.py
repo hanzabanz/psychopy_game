@@ -3,19 +3,13 @@ __author__ = 'hannah'
 """
 main.py
 """
-import sys
-
 from psychopy import core, visual
 from psychopy import event as evt
-from psychopy.iohub import module_directory
-from psychopy.iohub import launchHubServer,EventConstants
-from psychopy.iohub import (EventConstants, EyeTrackerConstants,
-                            getCurrentDateTimeString, ioHubExperimentRuntime)
-
+from psychopy.iohub import ioHubExperimentRuntime
 from psychopy import data
+
 import re
 
-import os
 import motor
 import speech
 import eye
@@ -80,9 +74,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         clock = core.Clock()
         display = self.devices.display
         keyboard = self.devices.keyboard
-        mouse = self.devices.mouse
-        mouseclick = evt.Mouse(win=window)
-        mouseclick.getPos()
+        mouse = evt.Mouse(win=window)
+        mouse.getPos()
 
         # Instructions
         #
@@ -214,12 +207,12 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
                                 # track types of trial
                                 if trial_type == 0:
-                                    status = motor.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp)
+                                    status = motor.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp)
                                 elif trial_type == 1:
-                                    status = speech.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
+                                    status = speech.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp)
                                 elif trial_type == 2:
                                     print "here"
-                                    status = eye.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp)
+                                    status = eye.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp)
 
                                     #eye.main(io)
 
@@ -280,11 +273,11 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
                             # track types of trial
                             if trial_type == 0:
-                                status = motor.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp)
+                                status = motor.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp)
                             elif trial_type == 1:
-                                status = speech.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
+                                status = speech.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp)
                             elif trial_type == 2:
-                                status = eye.trial(self, clock, window, shapes, keyboard, mouseclick, text_color, wait_time, warning_time, exp)
+                                status = eye.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp)
 
                             # always add shape colors since they will be relevant in every modality
                             exp.addData('correct', status)
