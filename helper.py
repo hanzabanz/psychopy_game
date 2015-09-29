@@ -1,21 +1,37 @@
 __author__ = 'hannah'
 
 import random
-from psychopy import core, visual
 
 
 def wait(window, n):
+    """ Refreshes the screen without any objects on the window for given number of frames.
+    :param window: window object
+    :param n: number of frames to be refreshed
+    :return: nothing
+    """
     for frameN in range(n):
         window.flip()
     return
 
 
 def getFlipTime(clock):
+    """ Returns the time. Called when accurate timing is needed at the instance a flip occurs.
+    :param clock: clock created using psychopy.core
+    :return: time
+    """
     global in_between_time
     in_between_time = clock.getTime()
+    return in_between_time
 
 
 def drawSequence(window, shapes, keyboard, clock):
+    """ Draws the array of shapes sequentially.
+    :param window: window object
+    :param shapes: array of the stimuli to be drawn, can be of length 1 thru 3
+    :param keyboard: psychopy keyboard used for premature quitting
+    :param clock: clock created using psychopy.core
+    :return: time from the last flip with a stimulus until the wait period after the sequence is over
+    """
     QUIT_EXP = False
     global in_between_time
     in_between_time = -1
@@ -77,6 +93,16 @@ def drawSequence(window, shapes, keyboard, clock):
 
 
 def checkMouseTimes(mouse, shapes, mouse_times, clock):
+    """ Checks if the mouse has been clicked in a box, then saves that click time in an array.
+    Because of deployment on the touchscreen, the function actually checks for whether the mouse has been moved into
+    a box.  The reason is that touchscreens do not have a hover function, so the instant the screen registers a touch at
+    a point within a box, the function registers it as a "click".
+    :param mouse: psychopy mouse object
+    :param shapes: array of the stimuli to be drawn, can be of length 1 thru 3
+    :param mouse_times: array to fill with mouse click times
+    :param clock: clock created using psychopy.core
+    :return: 0 if successful
+    """
     if mouse.mouseMoved():
         if shapes[0].contains(mouse):
             buttons, times = mouse.getPressed(getTime=True)
@@ -111,6 +137,13 @@ def checkOpacity(shapes):
 
 
 def addTrialData(shapes, trial_type, num_blocks, exp):
+    """ Adds the basic trial data to the output CSV file.
+    :param shapes: array of the stimuli to be drawn, can be of length 1 thru 3
+    :param trial_type: number of trial type (0 = motor, 1 = speech, 2 = eye)
+    :param num_blocks: number of stimuli blocks used in the trial
+    :param exp: experiment that the output is added to
+    :return:
+    """
     exp.addData('trial_type', trial_type)
     exp.addData('num_blocks', num_blocks)
 
@@ -128,6 +161,11 @@ def addTrialData(shapes, trial_type, num_blocks, exp):
 
 
 def adjustShapeLoc(shapes):
+    """ Adjusts the location of the shapes so that they are randomly presented in a line.  This function is used when
+    the shapes are presented sequentially in the center.
+    :param shapes: array of the stimuli to be drawn, can be of length 1 thru 3
+    :return: 0 if successful
+    """
     length = len(shapes)
     if length == 2:
         possibleLocs = [(-0.3, 0), (0.3, 0)]
@@ -140,9 +178,15 @@ def adjustShapeLoc(shapes):
         shapes[0].setPos(possibleLocs[0])
         shapes[1].setPos(possibleLocs[1])
         shapes[2].setPos(possibleLocs[2])
+    return 0
 
 
 def resetTrial(shapes, centered):
+    """ Resets the locations according to whether the shapes are supposed to be displayed in the center or not.
+    :param shapes: array of the stimuli to be drawn, can be of length 1 thru 3
+    :param centered: true if stimuli are to be shown in the center
+    :return: 0 if successful
+    """
     [s.setOpacity(1.0) for s in shapes]
     if centered:
         [s.setPos((0.0)) for s in shapes]
@@ -156,9 +200,17 @@ def resetTrial(shapes, centered):
             shapes[0].setPos((-0.5,0.5))
             shapes[1].setPos((0.5,-0.5))
             shapes[2].setPos((0.5,0.5))
+    return 0
 
 
 def displayNewRound(window, next_label, keyboard, QUIT_EXP):
+    """ Displays "New Round" label to indicate a new trial beginning.
+    :param window: window to be displayed on
+    :param next_label: label from psychopy visual stim that states the new round information
+    :param keyboard: psychopy keyboard
+    :param QUIT_EXP: False if the premature quitting keys have not been pressed
+    :return:
+    """
     wait(window, 25)
     for frameN in range(175):
         next_label.draw()
@@ -170,9 +222,17 @@ def displayNewRound(window, next_label, keyboard, QUIT_EXP):
         if QUIT_EXP is True:
             break
     wait(window, 25)
+    return 0
 
 
 def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
+    """ Randomize the order of stimulus blocks.
+    :param num_blocks: number of stimulus blocks
+    :param rect_stim1: a visual stimulus, meant to be a RectStim object
+    :param rect_stim2: a visual stimulus, meant to be a RectStim object
+    :param rect_stim3: a visual stimulus, meant to be a RectStim object
+    :return:
+    """
     int_num_blocks = int(num_blocks)
     # randomize block order and begin new round
     if int_num_blocks == 3:
@@ -185,12 +245,31 @@ def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
     return shapes
 
 def pos_conv(window, a):
+    """ Converts the norm position from interval [-1, 1] for x or y coordinates, to the window pixel units.
+    :param window:
+    :param a:
+    :return:
+    """
     return (window/4)*a
 
 def unit_conv(window_size, size):
+    """ Converts the norm vertical or horizontal lengths from interval [-1, 1] to the window pixel units.
+    :param window_size:
+    :param size:
+    :return:
+    """
     return window_size/(2*(1/size))
 
 def pix_conv(window_w, window_h, w, h, a, b):
+    """ Converts norm size and position of a rect target to a window's pixel units
+    :param window_w: window width
+    :param window_h: window height
+    :param w: width of target
+    :param h: height of target
+    :param a: x coord of target
+    :param b: y coord of target
+    :return: array of size 4: [left axis, right axis, top axis, bottom axis]
+    """
     if a != 0:
         a_sign = a/abs(a)
         left = (pos_conv(window_w, a) - unit_conv(window_w, w)) * -a_sign
