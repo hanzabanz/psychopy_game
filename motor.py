@@ -5,7 +5,7 @@ Accurate mouse click timing implemented
 Current mouse implementation means that we can't track the duration of mouse click
 Will need combination of event and iohub.mouse for both
 
-mouse_beg_time: time when all the stimuli appear and the interaction time begins (based on total clock time)
+stimulus_beg_time: time when all the stimuli appear and the interaction time begins (based on total clock time)
 in_between_time: time between when the last block disappears (so it includes the last pause before second
     instructions) and when all the blocks actually appear. (based on total clock time)
 
@@ -17,17 +17,17 @@ import helper
 
 
 # called on initial flip when all 3 stimuli appear
-def track_mouse_time(clock, mouse):
-    global mouse_beg_time
-    mouse_beg_time = clock.getTime()
+def track_time(clock, mouse):
+    global stimulus_beg_time
+    stimulus_beg_time = clock.getTime()
     mouse.clickReset()
     global in_between_time
     in_between_time = (clock.getTime() - in_between_time)
-    print "%f TIME FOR INITIAL STIMULUS" %(mouse_beg_time)
+    print "%f TIME FOR INITIAL STIMULUS" %(stimulus_beg_time)
 
 
 def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
-    mouse_beg_time = -1
+    stimulus_beg_time = -1
     global in_between_time
     in_between_time = -1
     total_stimuli_time = -1
@@ -84,7 +84,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         helper.adjustShapeLoc(shapes)
 
     # store time right when clicking stimuli is presented for reference
-    window.callOnFlip(track_mouse_time, clock, mouse)
+    window.callOnFlip(track_time, clock, mouse)
 
     while finished1==False and QUIT_EXP is False and timeout_counter < wait_time*60:
         # Redraw all blocks and window flip
@@ -101,7 +101,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if helper.checkOpacity(shapes):
             finish_time = clock.getTime()
-            total_stimuli_time = finish_time - mouse_beg_time
+            total_stimuli_time = finish_time - stimulus_beg_time
             finished1 = True
             print "\n%f\t%f\t%f" %(mouse_times[0], mouse_times[1], mouse_times[2])
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
@@ -119,7 +119,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     if QUIT_EXP is True:
         return -1
 
-    exp.addData("stimulus_begin_time", mouse_beg_time)
+    exp.addData("stimulus_begin_time", stimulus_beg_time)
     exp.addData("in_between_time", in_between_time)
     exp.addData("total_stimuli_time", total_stimuli_time)
     exp.addData("time1", mouse_times[0])
