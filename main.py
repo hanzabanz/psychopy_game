@@ -128,21 +128,22 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
             # for instruction page
             #
+            title_label.draw()
+            continue_label.draw()
+            continue_button.draw()
+            window.flip()
             self.hub.clearEvents('all')
 
-            while True:
-                title_label.draw()
-                continue_label.draw()
-                continue_button.draw()
-                window.flip()
-                if mouse.mouseMoved():
-                    print "mouse moved"
-                    if continue_button.contains(mouse):
-                        # can use this time to "sync" the program mouse time and self declared clock time
-                        print mouse.mouseMoveTime()
-                        print clock.getTime()
+            FINISH_INSTR = False
+            while FINISH_INSTR is False and QUIT_EXP is False:
+                for event in keyboard.getEvents():
+                    if event.key.lower() == 'q' and ('lctrl' in event.modifiers or 'rctrl' in event.modifiers):
+                        QUIT_EXP=True
                         break
-                mouse.getPos()
+                buttons = mouse.getPressed()
+                if buttons[0]:
+                    if mouse.isPressedIn(continue_button, buttons=[0]):
+                        break
 
             #### TRIALS OF BLOCK GAME ####
             exp = data.ExperimentHandler(name=experiment_name, version=version, extraInfo={'participant':participant_id},

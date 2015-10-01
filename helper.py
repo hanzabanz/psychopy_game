@@ -103,29 +103,43 @@ def checkMouseTimes(mouse, shapes, mouse_times, clock):
     :param clock: clock created using psychopy.core
     :return: 0 if successful
     """
-    if mouse.mouseMoved():
-        if shapes[0].contains(mouse):
-            buttons, times = mouse.getPressed(getTime=True)
-            mouse_times[0] = times[0]
-            print times[0]
-            print clock.getTime()
-            if shapes[0].opacity != 0.0:
-                shapes[0].setOpacity(0.0)
-        elif shapes[1].contains(mouse):
-            buttons, times = mouse.getPressed(getTime=True)
-            mouse_times[1] = times[0]
-            print times[0]
-            print clock.getTime()
-            if shapes[1].opacity != 0.0:
-                shapes[1].setOpacity(0.0)
-        elif shapes[2].contains(mouse):
-            buttons, times = mouse.getPressed(getTime=True)
-            mouse_times[2] = times[0]
-            print times[0]
-            print clock.getTime()
-            if shapes[2].opacity != 0.0:
-                shapes[2].setOpacity(0.0)
-    mouse.getPos() # reset a position
+    buttons, times = mouse.getPressed(getTime=True)
+    if len(shapes) == 1:
+        if(buttons[0]):
+            if mouse.isPressedIn(shapes[0], buttons=[0]):
+                if(shapes[0].opacity != 0.0):
+                    shapes[0].setOpacity(0.0)
+                mouse_times[0] = times[0]
+                return
+    elif len(shapes) == 2:
+        if(buttons[0]):
+            if mouse.isPressedIn(shapes[0], buttons=[0]):
+                if(shapes[0].opacity != 0.0):
+                    shapes[0].setOpacity(0.0)
+                mouse_times[0] = times[0]
+                return
+            if mouse.isPressedIn(shapes[1], buttons=[0]):
+                if(shapes[1].opacity != 0.0):
+                    shapes[1].setOpacity(0.0)
+                mouse_times[1] = times[0]
+                return
+    elif len(shapes) == 3:
+        if(buttons[0]):
+            if mouse.isPressedIn(shapes[0], buttons=[0]):
+                if(shapes[0].opacity != 0.0):
+                    shapes[0].setOpacity(0.0)
+                mouse_times[0] = times[0]
+                return
+            if mouse.isPressedIn(shapes[1], buttons=[0]):
+                if(shapes[1].opacity != 0.0):
+                    shapes[1].setOpacity(0.0)
+                mouse_times[1] = times[0]
+                return
+            if mouse.isPressedIn(shapes[2], buttons=[0]):
+                if(shapes[2].opacity != 0.0):
+                    shapes[2].setOpacity(0.0)
+                mouse_times[2] = times[0]
+                return
     return 0
 
 
