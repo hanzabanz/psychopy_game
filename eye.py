@@ -83,6 +83,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         # Get the latest gaze position
         #
         gpos=tracker.getLastGazePosition()
+        print gpos
         if not isinstance(gpos,(tuple,list)):
             continue
 
@@ -90,7 +91,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
             s = shapes[num]
             if init_time_array[num] == -1:
                continue
-            # todo: conversions to pix (or the same units as the vertices) don't seem to be right!
             verts = helper.pix_conv(window.size[0], window.size[1], s.width, s.height, s.pos[0], s.pos[1])
             if isinstance(gpos,(tuple,list)):
                 if verts[0] < gpos[0] < verts[1] and verts[3] < gpos[1] < verts[2]:

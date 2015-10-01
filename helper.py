@@ -184,25 +184,26 @@ def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
     random.shuffle(shapes)
     return shapes
 
+
 def pos_conv(window, a):
-    return (window/4)*a
+    return (window/2)*a
+
 
 def unit_conv(window_size, size):
-    return window_size/(2*(1/size))
+    return window_size/(2*(1/size))/2
+
 
 def pix_conv(window_w, window_h, w, h, a, b):
     if a != 0:
-        a_sign = a/abs(a)
-        left = (pos_conv(window_w, a) - unit_conv(window_w, w)) * -a_sign
-        right = (pos_conv(window_w, a) + unit_conv(window_w, w)) * a_sign
+        left = (pos_conv(window_w, a) - unit_conv(window_w, w))
+        right = (pos_conv(window_w, a) + unit_conv(window_w, w))
     else:
         left = (pos_conv(window_w, a) - unit_conv(window_w, w))
         right = (pos_conv(window_w, a) + unit_conv(window_w, w))
 
     if b != 0:
-        b_sign = b/abs(b)
-        top = (pos_conv(window_h, b) + unit_conv(window_h, h)) * b_sign
-        bottom = (pos_conv(window_h, b) - unit_conv(window_h, h)) * -b_sign
+        top = (pos_conv(window_h, b) + unit_conv(window_h, h))
+        bottom = (pos_conv(window_h, b) - unit_conv(window_h, h))
     else:
         top = (pos_conv(window_h, b) + unit_conv(window_h, h))
         bottom = (pos_conv(window_h, b) - unit_conv(window_h, h))
