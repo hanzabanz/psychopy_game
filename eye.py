@@ -1,10 +1,24 @@
 __author__ = 'hannah'
 
-from psychopy import visual
+from psychopy import visual, core
 import helper
 
+# called on initial flip when all 3 stimuli appear
+def track_time(clock):
+    global stimulus_beg_time
+    stimulus_beg_time = clock.getTime()
+    global in_between_time
+    in_between_time = (clock.getTime() - in_between_time)
+    print "%f TIME FOR INITIAL STIMULUS" %(stimulus_beg_time)
+    return core.Clock()
 
-def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centered, wait_time, warning_time, exp):
+
+def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
+    stimulus_beg_time = -1
+    global in_between_time
+    in_between_time = -1
+    total_stimuli_time = -1
+
     tracker=self.hub.devices.tracker
     tracker.runSetupProcedure()
 
@@ -44,21 +58,23 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
     self.hub.clearEvents('all')
     tracker.setRecordingState(True)
 
-    track_array = [-1, -1, -1]
+    init_time_array = [-1, -1, -1]
     if len(shapes) == 3:
-        track_array[0] = 0
-        track_array[1] = 0
-        track_array[2] = 0
+        init_time_array[0] = 0
+        init_time_array[1] = 0
+        init_time_array[2] = 0
     elif len(shapes) == 2:
-        track_array[0] = 0
-        track_array[1] = 0
+        init_time_array[0] = 0
+        init_time_array[1] = 0
     elif len(shapes) == 1:
-        track_array[0] = 0
+        init_time_array[0] = 0
 
-    time_array = [-1, -1, -1]
+    time_diff_array = [-1, -1, -1]
 
     timeout_counter = 0
 
+    # store time right when clicking stimuli is presented for reference
+    window.callOnFlip(track_time, clock)
 
     # Loop until we get a keyboard event
     #
@@ -67,29 +83,29 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
         # Get the latest gaze position
         #
         gpos=tracker.getLastGazePosition()
+        print gpos
         if not isinstance(gpos,(tuple,list)):
             continue
 
         for num in range(length):
             s = shapes[num]
-            if track_array[num] == -1:
+            if init_time_array[num] == -1:
                continue
-            # todo: conversions to pix (or the same units as the vertices) don't seem to be right!
             verts = helper.pix_conv(window.size[0], window.size[1], s.width, s.height, s.pos[0], s.pos[1])
             if isinstance(gpos,(tuple,list)):
                 if verts[0] < gpos[0] < verts[1] and verts[3] < gpos[1] < verts[2]:
-                    track_array[num] += 1
-                    time_array[num] = clock.getTime()
+                    init_time_array[num] += 1
+                    time_diff_array[num] = clock.getTime()
                     # todo: set the time necessary to look at block for it to be registered, temp set to x cycles
-                    if track_array[num] > 80:
+                    if init_time_array[num] > 80:
                         s.setOpacity(0.0)
-                        track_array[num] = -1
+                        init_time_array[num] = -1
 
                 # todo: set threshold time away to allow for some noise/variation
-                elif clock.getTime() - time_array[num] > 0.2:
-                    track_array[num] = 0
-                    time_array[num] = -1
-                print "Updated for Shape #%d to %d" %(num, track_array[num])
+                elif clock.getTime() - time_diff_array[num] > 0.2:
+                    init_time_array[num] = 0
+                    time_diff_array[num] = -1
+                print "Updated for Shape #%d to %d" %(num, init_time_array[num])
 
         if isinstance(gpos,(tuple,list)):
             # Adjusting eye tracking values to match norm units
@@ -107,6 +123,10 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
 
         if helper.checkOpacity(shapes):
             finish_time = clock.getTime()
+            total_stimuli_time = finish_time - stimulus_beg_time
+            print "\n%f\t%f\t%f" %(init_time_array[0], init_time_array[1], init_time_array[2])
+            print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
+            break
             break
 
         # limit to wait time
@@ -122,3 +142,27 @@ def trial(self, clock, window, shapes, keyboard, mouseclick, text_color, centere
 
     self.hub.clearEvents('all')
     tracker.setConnectionState(False)
+
+    exp.addData("stimulus_begin_time", stimulus_beg_time)
+    exp.addData("in_between_time", in_between_time)
+    exp.addData("total_stimuli_time", total_stimuli_time)
+    exp.addData("time1", init_time_array[0])
+    exp.addData("time2", init_time_array[1])
+    exp.addData("time3", init_time_array[2])
+
+    if timeout_counter == wait_time*60:
+        return 2
+
+    # return status code based on correctness of sequence
+    if length == 1:
+        return 1
+    elif length == 2:
+        if init_time_array[1] > init_time_array[0]:
+            return 1  # correct
+        else:
+            return 0  # not correct
+    elif length == 3:
+        if init_time_array[0] < init_time_array[1] < init_time_array[2]:
+            return 1  # correct
+        else:
+            return 0  # not correct
