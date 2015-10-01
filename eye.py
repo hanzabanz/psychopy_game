@@ -14,6 +14,11 @@ def track_time(clock):
 
 
 def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
+    stimulus_beg_time = -1
+    global in_between_time
+    in_between_time = -1
+    total_stimuli_time = -1
+
     tracker=self.hub.devices.tracker
     tracker.runSetupProcedure()
 
@@ -144,3 +149,20 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     exp.addData("time1", init_time_array[0])
     exp.addData("time2", init_time_array[1])
     exp.addData("time3", init_time_array[2])
+
+    if timeout_counter == wait_time*60:
+        return 2
+
+    # return status code based on correctness of sequence
+    if length == 1:
+        return 1
+    elif length == 2:
+        if init_time_array[1] > init_time_array[0]:
+            return 1  # correct
+        else:
+            return 0  # not correct
+    elif length == 3:
+        if init_time_array[0] < init_time_array[1] < init_time_array[2]:
+            return 1  # correct
+        else:
+            return 0  # not correct
