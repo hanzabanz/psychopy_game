@@ -1,4 +1,4 @@
-__author__ = 'hannah'
+ __author__ = 'hannah'
 
 """
 Accurate mouse click timing implemented
