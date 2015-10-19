@@ -4,8 +4,7 @@ from psychopy import core, visual
 from psychopy import event as evt
 from psychopy.iohub import ioHubConnection
 from psychopy.iohub import launchHubServer
-from psychopy import data
-import helper
+from helper import unit_conv
 from psychopy import data
 import random
 import re
@@ -15,19 +14,19 @@ import re
 
 __author__ = 'Andrew Saad'
 
+
 class TestHelper(unittest.TestCase):
 
     global window, keyboard,mouse
-    window =visual.Window(size=(800,600), units='norm', color='white', colorSpace='rgb',
+    window = visual.Window(size=(800,600), units='norm', color='white', colorSpace='rgb',
                              fullscr=False, allowGUI=False)
-    #declaration for mouse and keyboard
+    # declaration for mouse and keyboard
     io=launchHubServer(experiment_code='key_evts',psychopy_monitor_name='default')
     keyboard = io.devices.keyboard
     mouse = evt.Mouse(win=window)
     mouse.getPos()
 
-
-    def unit_conv(self,window_size, size):
+    def unit_conv(self, window_size, size):
         """ Converts the norm vertical or horizontal lengths from interval [-1, 1] to the window pixel units.
         :param window_size:
         :param size:
@@ -311,6 +310,8 @@ class TestHelper(unittest.TestCase):
                                  fillColorSpace='rgb', pos=(0, 0))
 
         shapes = [rect_stim1,rect_stim2]
+        shapes[0].setPos((0,0))
+        shapes[1].setPos((0,0))
         res= self.adjustShapeLoc(shapes)
         self.assertEqual(res,0)
 
@@ -330,6 +331,9 @@ class TestHelper(unittest.TestCase):
         rect_stim3 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1, 1, 1), fillColor='red',
                                  fillColorSpace='rgb', pos=(0, 0))
         shapes = [rect_stim1, rect_stim2, rect_stim3]
+        shapes[0].setPos((0,0))
+        shapes[1].setPos((0,0))
+        shapes[2].setPos((0,0))
 
         res= self.adjustShapeLoc(shapes)
         self.assertEqual(res,0)
@@ -470,17 +474,17 @@ class TestHelper(unittest.TestCase):
     #
     #testing checkOpacity
     #
-    #Don't how to test it
+    #Not working
     def test_checkOpacity_1(self):
 
         rect_stim1 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1, 1, 1), fillColor='blue',
-                                 fillColorSpace='rgb', pos=(0, 0))
+                                 fillColorSpace='rgb', pos=(0, 0),opacity=0.0)
         rect_stim2 = visual.Rect(window, width=0.5, height=0.5, lineColor=(1, 1, 1), fillColor='green',
-                                 fillColorSpace='rgb', pos=(0, 0))
+                                 fillColorSpace='rgb', pos=(0, 0),opacity=0.0)
 
         shapes = [rect_stim1,rect_stim2]
         res= self.checkOpacity(shapes)
-        self.assertEqual(res,False)
+        self.assertEqual(res,True)
 
     def test_checkOpacity_2(self):
 
