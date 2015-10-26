@@ -75,9 +75,9 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
 
     # for block interaction
     #
-    timeout_counter = 0
+    beg_time = clock.getTime()
+    curr_time = clock.getTime()
     self.hub.clearEvents()
-    finished1 = False
 
     # changes location of shapes if centered (so that they don't overlap)
     if centered and length > 1:
@@ -86,33 +86,56 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     # store time right when clicking stimuli is presented for reference
     window.callOnFlip(track_time, clock, mouse)
 
-    while finished1==False and QUIT_EXP is False and timeout_counter < wait_time*60:
-        # Redraw all blocks and window flip
+    hit_tracker = [False, False, False]
 
-        # display blocks
+    [s.draw() for s in shapes]
+    window.flip()
+    mouse.getPos()
+
+    while curr_time - beg_time < wait_time:
         [s.draw() for s in shapes]
         count_label.draw()
-        flip_time = window.flip()
-
+        window.flip()
         # Check for mouse clicks and location
         # even if not all present, goes off location
-        helper.checkMouseTimes(mouse, shapes, mouse_times, clock)
+        # if mouse.mouseMoved():
+            # todo: bring back opacity functionality and count down
+            # todo: put this back in helper function
+        if shapes[0].contains(mouse):
+            if shapes[0].opacity > 0:
+                shapes[0].setOpacity(shapes[0].opacity - 0.01)
+            else:
+                hit_tracker[0] = True
+                mouse_times[0] = clock.getTime()
+        elif shapes[1].contains(mouse):
+            if shapes[1].opacity > 0:
+                shapes[1].setOpacity(shapes[1].opacity - 0.01)
+            else:
+                hit_tracker[1] = True
+                mouse_times[1] = clock.getTime()
+        elif shapes[2].contains(mouse):
+            mouse_times[2] = clock.getTime()
+            if shapes[2].opacity > 0:
+                shapes[2].setOpacity(shapes[2].opacity - 0.01)
+            else:
+                hit_tracker[2] = True
+                mouse_times[2] = clock.getTime()
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
-        if helper.checkOpacity(shapes):
+        if hit_tracker[0] is True and hit_tracker[1] is True and hit_tracker[2] is True:
             finish_time = clock.getTime()
             total_stimuli_time = finish_time - stimulus_beg_time
-            finished1 = True
             print "\n%f\t%f\t%f" %(mouse_times[0], mouse_times[1], mouse_times[2])
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
+        curr_time = clock.getTime()
 
-        # limit to wait time
-        timeout_counter += 1
 
         # adjust count_down, to be displayed with the next flip
-        if timeout_counter >= ((wait_time - warning_time)*60) and timeout_counter % 60 == 0:
-            count_label.setText(((wait_time*60)-timeout_counter)/60)
+
+        # todo: not sure how to do count down display if there is no window flip because that will affect timing
+        if (curr_time - beg_time) >= (wait_time - warning_time):
+            count_label.setText(int(round(wait_time - (curr_time - beg_time))), 0)
 
 
 
@@ -126,7 +149,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     exp.addData("time2", mouse_times[1])
     exp.addData("time3", mouse_times[2])
 
-    if timeout_counter == wait_time*60:
+    if curr_time > wait_time:
         return 2
 
     # return status code based on correctness of sequence

@@ -92,54 +92,30 @@ def drawSequence(window, shapes, keyboard, clock):
     return in_between_time
 
 
-def checkMouseTimes(mouse, shapes, mouse_times, clock):
+def checkMouseTimes(mouse, shapes, mouse_times, clock, hit_tracker):
     """ Checks if the mouse has been clicked in a box, then saves that click time in an array.
-    Because of deployment on the touchscreen, the function actually checks for whether the mouse has been moved into
-    a box.  The reason is that touchscreens do not have a hover function, so the instant the screen registers a touch at
-    a point within a box, the function registers it as a "click".
+    In this implementation, the expectation is that the subject keeps their finger on the screen and connects
+    the squares in the correct order. Timing is based on the clock. With flip & display disabled, then the timing is
+    accurate. Otherwise, if the opacity is updated in real-time, then the timing resolution is limited to 60 Hz.
     :param mouse: psychopy mouse object
     :param shapes: array of the stimuli to be drawn, can be of length 1 thru 3
     :param mouse_times: array to fill with mouse click times
     :param clock: clock created using psychopy.core
     :return: 0 if successful
     """
-    buttons, times = mouse.getPressed(getTime=True)
-    if len(shapes) == 1:
-        if(buttons[0]):
-            if mouse.isPressedIn(shapes[0], buttons=[0]):
-                if(shapes[0].opacity != 0.0):
-                    shapes[0].setOpacity(0.0)
-                mouse_times[0] = times[0]
-                return
-    elif len(shapes) == 2:
-        if(buttons[0]):
-            if mouse.isPressedIn(shapes[0], buttons=[0]):
-                if(shapes[0].opacity != 0.0):
-                    shapes[0].setOpacity(0.0)
-                mouse_times[0] = times[0]
-                return
-            if mouse.isPressedIn(shapes[1], buttons=[0]):
-                if(shapes[1].opacity != 0.0):
-                    shapes[1].setOpacity(0.0)
-                mouse_times[1] = times[0]
-                return
-    elif len(shapes) == 3:
-        if(buttons[0]):
-            if mouse.isPressedIn(shapes[0], buttons=[0]):
-                if(shapes[0].opacity != 0.0):
-                    shapes[0].setOpacity(0.0)
-                mouse_times[0] = times[0]
-                return
-            if mouse.isPressedIn(shapes[1], buttons=[0]):
-                if(shapes[1].opacity != 0.0):
-                    shapes[1].setOpacity(0.0)
-                mouse_times[1] = times[0]
-                return
-            if mouse.isPressedIn(shapes[2], buttons=[0]):
-                if(shapes[2].opacity != 0.0):
-                    shapes[2].setOpacity(0.0)
-                mouse_times[2] = times[0]
-                return
+    if mouse.mouseMoved():
+        print "mouse moved"
+        if shapes[0].contains(mouse):
+            mouse_times[0] = clock.getTime()
+            hit_tracker[0] = True
+        elif shapes[1].contains(mouse):
+            mouse_times[1] = clock.getTime()
+            hit_tracker[1] = True
+        elif shapes[2].contains(mouse):
+            mouse_times[2] = clock.getTime()
+            hit_tracker[2] = True
+    mouse.getPos()
+    print mouse.getPos() # reset a position
     return 0
 
 
