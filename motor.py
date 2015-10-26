@@ -98,9 +98,10 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         window.flip()
         # Check for mouse clicks and location
         # even if not all present, goes off location
-        # if mouse.mouseMoved():
-            # todo: bring back opacity functionality and count down
-            # todo: put this back in helper function
+        # todo: put this back in helper function
+        buttons = mouse.getPressed()
+        if buttons[0] == 0:
+            continue # skip loop because there is no touch
         if shapes[0].contains(mouse):
             if shapes[0].opacity > 0:
                 shapes[0].setOpacity(shapes[0].opacity - 0.01)
