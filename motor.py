@@ -100,27 +100,26 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         # even if not all present, goes off location
         # todo: put this back in helper function
         buttons = mouse.getPressed()
-        if buttons[0] == 0:
-            continue # skip loop because there is no touch
-        if shapes[0].contains(mouse):
-            if shapes[0].opacity > 0:
-                shapes[0].setOpacity(shapes[0].opacity - 0.01)
-            else:
-                hit_tracker[0] = True
-                mouse_times[0] = clock.getTime()
-        elif shapes[1].contains(mouse):
-            if shapes[1].opacity > 0:
-                shapes[1].setOpacity(shapes[1].opacity - 0.01)
-            else:
-                hit_tracker[1] = True
-                mouse_times[1] = clock.getTime()
-        elif shapes[2].contains(mouse):
-            mouse_times[2] = clock.getTime()
-            if shapes[2].opacity > 0:
-                shapes[2].setOpacity(shapes[2].opacity - 0.01)
-            else:
-                hit_tracker[2] = True
+        if buttons[0] == 1:
+            if shapes[0].contains(mouse):
+                if shapes[0].opacity > 0:
+                    shapes[0].setOpacity(shapes[0].opacity - 0.01)
+                else:
+                    hit_tracker[0] = True
+                    mouse_times[0] = clock.getTime()
+            elif shapes[1].contains(mouse):
+                if shapes[1].opacity > 0:
+                    shapes[1].setOpacity(shapes[1].opacity - 0.01)
+                else:
+                    hit_tracker[1] = True
+                    mouse_times[1] = clock.getTime()
+            elif shapes[2].contains(mouse):
                 mouse_times[2] = clock.getTime()
+                if shapes[2].opacity > 0:
+                    shapes[2].setOpacity(shapes[2].opacity - 0.01)
+                else:
+                    hit_tracker[2] = True
+                    mouse_times[2] = clock.getTime()
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if hit_tracker[0] is True and hit_tracker[1] is True and hit_tracker[2] is True:
