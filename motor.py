@@ -16,6 +16,14 @@ from psychopy import visual
 import helper
 
 
+#opening file to write the mouse position and time
+global text_file
+global count
+count =0
+count =+1
+text_file = open("Experiment %d.txt" % count, "w")
+text_file.write("\t Time \t Position\n")
+
 # called on initial flip when all 3 stimuli appear
 def track_time(clock, mouse):
     global stimulus_beg_time
@@ -24,6 +32,19 @@ def track_time(clock, mouse):
     global in_between_time
     in_between_time = (clock.getTime() - in_between_time)
     print "%f TIME FOR INITIAL STIMULUS" %(stimulus_beg_time)
+
+
+# called to output data in excel file with position of the mouse and time
+def mouse_position_time(clock, mouse):
+
+    mouse_pos = 0
+    text_file.write("\t")
+    clock_time = str(clock.getTime())
+    text_file.write(clock_time)
+    text_file.write("\t")
+    mouse_pos = str(mouse.getPos())
+    text_file.write(mouse_pos)
+    text_file.write("\n")
 
 
 def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
@@ -130,6 +151,15 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
             break
         curr_time = clock.getTime()
 
+        #getting the mouse position and time A
+        #count =+1
+        #text_file = open("Experiment %d.txt" % count, "w")
+        #text_file.write("\t Time \t Position\n")
+        mouse_position_time(clock,mouse)
+
+
+        # limit to wait time
+        timeout_counter += 1
 
         # adjust count_down, to be displayed with the next flip
 
@@ -149,7 +179,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     exp.addData("time2", mouse_times[1])
     exp.addData("time3", mouse_times[2])
 
-    if curr_time > wait_time:
+    if timeout_counter == wait_time*60:
         return 2
 
     # return status code based on correctness of sequence
