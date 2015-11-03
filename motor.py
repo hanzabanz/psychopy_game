@@ -179,7 +179,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     exp.addData("time2", mouse_times[1])
     exp.addData("time3", mouse_times[2])
 
-    if timeout_counter == wait_time*60:
+    if curr_time >  wait_time:
         return 2
 
     # return status code based on correctness of sequence
