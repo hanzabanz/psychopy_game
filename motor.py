@@ -1,4 +1,4 @@
- __author__ = 'hannah'
+__author__ = 'hannah'
 
 """
 Accurate mouse click timing implemented
@@ -13,8 +13,17 @@ in_between_time: time between when the last block disappears (so it includes the
 
 from psychopy import event
 from psychopy import visual
+
 import helper
 
+
+#opening file to write the mouse position and time
+global text_file
+global count
+count =0
+count =+1
+text_file = open("Experiment %d.txt" % count, "w")
+text_file.write("\t Time \t Position\n")
 
 # called on initial flip when all 3 stimuli appear
 def track_mouse_time(clock, mouse):
@@ -26,11 +35,25 @@ def track_mouse_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(mouse_beg_time)
 
 
+# called to output data in excel file with position of the mouse and time
+def mouse_position_time(clock, mouse):
+
+    mouse_pos = 0
+    text_file.write("\t")
+    clock_time = str(clock.getTime())
+    text_file.write(clock_time)
+    text_file.write("\t")
+    mouse_pos = str(mouse.getPos())
+    text_file.write(mouse_pos)
+    text_file.write("\n")
+
+
 def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
     mouse_beg_time = -1
     global in_between_time
     in_between_time = -1
     total_stimuli_time = -1
+
 
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
@@ -57,6 +80,8 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
 
     global in_between_time
     in_between_time = helper.drawSequence(window, shapes, keyboard, clock)
+
+
 
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
@@ -107,6 +132,13 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
 
+        #getting the mouse position and time A
+        #count =+1
+        #text_file = open("Experiment %d.txt" % count, "w")
+        #text_file.write("\t Time \t Position\n")
+        mouse_position_time(clock,mouse)
+
+
         # limit to wait time
         timeout_counter += 1
 
@@ -126,6 +158,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     exp.addData("time2", mouse_times[1])
     exp.addData("time3", mouse_times[2])
 
+
     if timeout_counter == wait_time*60:
         return 2
 
@@ -142,4 +175,9 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
             return 1  # correct
         else:
             return 0  # not correct
+
+# closing the file at the end A
+#text_file.close()
+
+
 
