@@ -158,9 +158,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         mouse_position_time(clock,mouse)
 
 
-        # limit to wait time
-        timeout_counter += 1
-
         # adjust count_down, to be displayed with the next flip
 
         # todo: not sure how to do count down display if there is no window flip because that will affect timing
@@ -178,6 +175,9 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     exp.addData("time1", mouse_times[0])
     exp.addData("time2", mouse_times[1])
     exp.addData("time3", mouse_times[2])
+
+    #closing the file at the end A
+    text_file.close()
 
     if curr_time >  wait_time:
         return 2
