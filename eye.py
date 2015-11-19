@@ -3,6 +3,9 @@ __author__ = 'hannah'
 from psychopy import visual, core
 import helper
 
+REQUIRED_FRAMES = 80
+THRES_TIME_AWAY = 0.2
+
 # called on initial flip when all 3 stimuli appear
 def track_time(clock):
     global stimulus_beg_time
@@ -13,19 +16,20 @@ def track_time(clock):
     return core.Clock()
 
 
-def trial(io, clock, window, shapes, keyboard, mouse, tracker, text_color, centered, wait_time, warning_time, exp):
+def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
+
     stimulus_beg_time = -1
     global in_between_time
     in_between_time = -1
     total_stimuli_time = -1
 
-    # tracker=self.hub.devices.tracker
-    # tracker.runSetupProcedure()
+    tracker=self.hub.devices.tracker
+    tracker.runSetupProcedure()
+    tracker.setConnectionState(True)
 
     # Create visuals and texts
     #
-    gaze_dot = visual.GratingStim(window,tex=None, mask="gauss",
-                                 pos=(0,0 ),size=(0.1,0.1),color='green',
+    gaze_dot = visual.GratingStim(window,tex=None, mask="gauss", pos=(0,0 ),size=(0.1,0.1),color='green',
                                                     units='norm')
 
     instructions_text_stim = visual.TextStim(window, units='norm', text=u'Please look at the blocks in the '
@@ -51,11 +55,11 @@ def trial(io, clock, window, shapes, keyboard, mouse, tracker, text_color, cente
         helper.adjustShapeLoc(shapes)
 
     # wait until a key event occurs after the instructions are displayed
-    io.clearEvents('all')
+    self.hub.clearEvents('all')
     instructions_text_stim.draw()
     window.flip()
 
-    io.clearEvents('all')
+    self.hub.clearEvents('all')
     tracker.setRecordingState(True)
 
     init_time_array = [-1, -1, -1]
@@ -83,32 +87,31 @@ def trial(io, clock, window, shapes, keyboard, mouse, tracker, text_color, cente
         # Get the latest gaze position
         #
         gpos=tracker.getLastGazePosition()
-        print gpos
         if not isinstance(gpos,(tuple,list)):
+            [s.draw() for s in shapes]
+            window.flip()
             continue
 
         for num in range(length):
             s = shapes[num]
-            if init_time_array[num] == -1:
+            if s.opacity == 0.0:
                continue
             verts = helper.pix_conv(window.size[0], window.size[1], s.width, s.height, s.pos[0], s.pos[1])
             if isinstance(gpos,(tuple,list)):
                 if verts[0] < gpos[0] < verts[1] and verts[3] < gpos[1] < verts[2]:
                     init_time_array[num] += 1
                     time_diff_array[num] = clock.getTime()
-                    # todo: set the time necessary to look at block for it to be registered, temp set to x cycles
-                    if init_time_array[num] == 40:
+                    if init_time_array[num] == REQUIRED_FRAMES/2:
                         s.setOpacity(0.5)
-                    if init_time_array[num] > 80:
+                    if init_time_array[num] > REQUIRED_FRAMES:
                         s.setOpacity(0.0)
-                        init_time_array[num] = -1
+                        init_time_array[num] = clock.getTime()
 
-                # todo: set threshold time away to allow for some noise/variation
-                elif clock.getTime() - time_diff_array[num] > 0.2:
+                elif clock.getTime() - time_diff_array[num] > THRES_TIME_AWAY:
                     init_time_array[num] = 0
                     time_diff_array[num] = -1
                     s.setOpacity(1.0)
-                print "Updated for Shape #%d to %d" %(num, init_time_array[num])
+                # print "Updated for Shape #%d to %d" %(num, init_time_array[num])
 
         if isinstance(gpos,(tuple,list)):
             # Adjusting eye tracking values to match norm units
