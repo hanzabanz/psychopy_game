@@ -12,5 +12,5 @@
 - !!python/unicode Keyboard: {!!python/unicode name: !!python/unicode keyboard}
 - !!python/unicode Mouse: {!!python/unicode name: !!python/unicode mouse}
 - !!python/unicode Experiment: {!!python/unicode name: !!python/unicode experimentRuntime}
-- !!python/unicode eyetracker.hw.tobii_eyex.EyeTracker: {!!python/unicode enable: true,
+- !!python/unicode eyetracker.hw.theeyetribe.EyeTracker: {!!python/unicode enable: true,
     !!python/unicode name: !!python/unicode tracker}

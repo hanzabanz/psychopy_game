@@ -13,14 +13,14 @@ def track_time(clock):
     return core.Clock()
 
 
-def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
+def trial(io, clock, window, shapes, keyboard, mouse, tracker, text_color, centered, wait_time, warning_time, exp):
     stimulus_beg_time = -1
     global in_between_time
     in_between_time = -1
     total_stimuli_time = -1
 
-    tracker=self.hub.devices.tracker
-    tracker.runSetupProcedure()
+    # tracker=self.hub.devices.tracker
+    # tracker.runSetupProcedure()
 
     # Create visuals and texts
     #
@@ -51,11 +51,11 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         helper.adjustShapeLoc(shapes)
 
     # wait until a key event occurs after the instructions are displayed
-    self.hub.clearEvents('all')
+    io.clearEvents('all')
     instructions_text_stim.draw()
     window.flip()
 
-    self.hub.clearEvents('all')
+    io.clearEvents('all')
     tracker.setRecordingState(True)
 
     init_time_array = [-1, -1, -1]
@@ -97,6 +97,8 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
                     init_time_array[num] += 1
                     time_diff_array[num] = clock.getTime()
                     # todo: set the time necessary to look at block for it to be registered, temp set to x cycles
+                    if init_time_array[num] == 40:
+                        s.setOpacity(0.5)
                     if init_time_array[num] > 80:
                         s.setOpacity(0.0)
                         init_time_array[num] = -1
@@ -105,6 +107,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
                 elif clock.getTime() - time_diff_array[num] > 0.2:
                     init_time_array[num] = 0
                     time_diff_array[num] = -1
+                    s.setOpacity(1.0)
                 print "Updated for Shape #%d to %d" %(num, init_time_array[num])
 
         if isinstance(gpos,(tuple,list)):
@@ -126,7 +129,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
             total_stimuli_time = finish_time - stimulus_beg_time
             print "\n%f\t%f\t%f" %(init_time_array[0], init_time_array[1], init_time_array[2])
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
-            break
             break
 
         # limit to wait time
