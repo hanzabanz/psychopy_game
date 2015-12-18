@@ -78,9 +78,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
         # Instructions
         #
-        title_label = visual.TextStim(window, units='norm', text=u'Remember the sequence of colored blocks.\n\nClick on them in'
-                                                                 u' the same order when they appear.\n\nPress CTRL-Q anytime to'
-                                                                 u' quit',
+        title_label = visual.TextStim(window, units='norm', text=u'Remember the  sequence of  colored blocks.',
                                       pos=[0,0.2], height=0.1, color=text_color, colorSpace='rgb',alignHoriz='center',
                                       alignVert='center')
 
@@ -184,11 +182,6 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                             trial_loop = data.TrialHandler(trialList=[], nReps=1, name=name)
                             exp.addLoop(trial_loop)
                             if status != -1:
-                                # display new round label
-                                helper.displayNewRound(window, next_label, keyboard, QUIT_EXP)
-                                if QUIT_EXP is True:
-                                    break
-
                                 # restart values and indicate new round
                                 shapes = [rect_stim1, rect_stim2, rect_stim3]
                                 helper.resetTrial(shapes, centered)
@@ -203,13 +196,11 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
                                 # track types of trial
                                 if trial_type == 0:
-                                    status = motor.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp)
+                                    status = motor.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp, num)
                                 elif trial_type == 1:
                                     status = speech.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp)
                                 elif trial_type == 2:
-                                    status = eye.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp)
-
-                                    #eye.main(io)
+                                    status = eye.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp, num)
 
                                 # always add shape colors since they will be relevant in every modality
                                 exp.addData('correct', status)
@@ -222,6 +213,9 @@ class ExperimentRuntime(ioHubExperimentRuntime):
             else:
                 # randomize everything, except for total number of trials
                 for num in range(num_random):
+                    motor_count = 0
+                    eye_count = 0
+
                     # check for disabled trials and choose a random trial type out of the enabled types
                     trial_array = []
                     if num_reps_motor != -1:
@@ -250,10 +244,6 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                         trial_loop = data.TrialHandler(trialList=[], nReps=1, name=name)
                         exp.addLoop(trial_loop)
                         if status != -1:
-                            helper.displayNewRound(window, next_label, keyboard, QUIT_EXP)
-                            if QUIT_EXP is True:
-                                break
-
                             # restart values and indicate new round
                             shapes = [rect_stim1, rect_stim2, rect_stim3]
                             helper.resetTrial(shapes, centered)
@@ -268,11 +258,13 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
                             # track types of trial
                             if trial_type == 0:
-                                status = motor.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp)
+                                status = motor.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp, motor_count)
+                                motor_count += 1
                             elif trial_type == 1:
                                 status = speech.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp)
                             elif trial_type == 2:
-                                status = eye.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp)
+                                status = eye.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp, eye_count)
+                                eye_count += 1
 
                             # always add shape colors since they will be relevant in every modality
                             exp.addData('correct', status)

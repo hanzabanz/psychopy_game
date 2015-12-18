@@ -193,7 +193,7 @@ def resetTrial(shapes, centered):
     return 0
 
 
-def displayNewRound(window, next_label, keyboard, QUIT_EXP):
+def displayNewRound(window, next_label, keyboard):
     """ Displays "New Round" label to indicate a new trial beginning.
     :param window: window to be displayed on
     :param next_label: label from psychopy visual stim that states the new round information
@@ -207,10 +207,7 @@ def displayNewRound(window, next_label, keyboard, QUIT_EXP):
         window.flip()
         for evt in keyboard.getEvents():
             if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
-                QUIT_EXP=True
                 break
-        if QUIT_EXP is True:
-            break
     wait(window, 25)
     return 0
 
@@ -224,7 +221,8 @@ def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
     :return:
     """
     int_num_blocks = int(num_blocks)
-    # randomize block order and begin new round
+
+    # randomize block order
     if int_num_blocks == 3:
         shapes = [rect_stim1, rect_stim2, rect_stim3]
     elif int_num_blocks == 2:
@@ -232,6 +230,20 @@ def randomizeBlocks(num_blocks, rect_stim1, rect_stim2, rect_stim3):
     elif int_num_blocks == 1: # automatically centered if only one
         shapes = [rect_stim1]
     random.shuffle(shapes)
+
+    # randomize the position of each color
+    if int_num_blocks == 2:
+        possibleLocs = [(-0.5, 0.5), (0.5, -0.5)]
+        random.shuffle(possibleLocs)
+        shapes[0].setPos(possibleLocs[0])
+        shapes[1].setPos(possibleLocs[1])
+    if int_num_blocks == 3:
+        possibleLocs = [(-0.5, 0.5), (0.5, -0.5), (0.5, 0.5)]
+        random.shuffle(possibleLocs)
+        shapes[0].setPos(possibleLocs[0])
+        shapes[1].setPos(possibleLocs[1])
+        shapes[2].setPos(possibleLocs[2])
+
     return shapes
 
 

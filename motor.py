@@ -15,14 +15,10 @@ from psychopy import event
 from psychopy import visual
 import helper
 
-
-#opening file to write the mouse position and time
-global text_file
-global count
-count =0
-count =+1
-text_file = open("Experiment %d.txt" % count, "w")
-text_file.write("\t Time \t Position\n")
+REQUIRED_FRAMES = 40
+OPACITY_THRES = 0.25
+CHNG_INTERVAL = REQUIRED_FRAMES*0.75
+ADJ_INTERVAL = (1-OPACITY_THRES)/CHNG_INTERVAL
 
 # called on initial flip when all 3 stimuli appear
 def track_time(clock, mouse):
@@ -35,10 +31,7 @@ def track_time(clock, mouse):
 
 
 # called to output data in excel file with position of the mouse and time
-def mouse_position_time(clock, mouse):
-
-    mouse_pos = 0
-    text_file.write("\t")
+def mouse_position_time(clock, mouse, text_file):
     clock_time = str(clock.getTime())
     text_file.write(clock_time)
     text_file.write("\t")
@@ -47,23 +40,32 @@ def mouse_position_time(clock, mouse):
     text_file.write("\n")
 
 
-def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp):
+def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp, count):
+    global stimulus_beg_time
     stimulus_beg_time = -1
     global in_between_time
     in_between_time = -1
+    global total_stimuli_time
     total_stimuli_time = -1
+
+    text_file = open("motor_exp_%d.txt" % count, "w")
+    text_file.write("Time \t Position\n")
 
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
 
-    second_label = visual.TextStim(window, units='norm', text=u'Please click on the colored blocks in the order that '
-                                                              u'they previously appeared',
+    second_label = visual.TextStim(window, units='norm', text=u'Click on blocks',
                                    pos = [0,0], height=0.1, color=text_color, colorSpace='rgb255',alignHoriz='center',
                                    alignVert='center')
 
+    next_label = visual.TextStim(window, units='norm', text=u'Motor Round', pos=[0,0], height=0.1, color=text_color,
+                                colorSpace='rgb',alignHoriz='center', alignVert='center')
+    helper.displayNewRound(window, next_label, keyboard)
+
     # Default values
     mouse_times = [-1, -1, -1]
+    mouse_counter = [0, 0, 0]
 
     length = len(shapes)
 
@@ -83,16 +85,9 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
 
     # second instructions
     self.hub.clearEvents('all')
-    for frameN in range(150):
-        if QUIT_EXP is True:
-            break
+    for nFrames in range(200):
         second_label.draw()
         window.flip()
-        for evt in keyboard.getEvents():
-            demo_timeout_start=evt.time
-            if evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
-                QUIT_EXP = True
-                break
 
     # for block interaction
     #
@@ -106,8 +101,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
 
     # store time right when clicking stimuli is presented for reference
     window.callOnFlip(track_time, clock, mouse)
-
-    hit_tracker = [False, False, False]
 
     [s.draw() for s in shapes]
     window.flip()
@@ -123,52 +116,51 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
         buttons = mouse.getPressed()
         if buttons[0] == 1:
             if shapes[0].contains(mouse):
-                if shapes[0].opacity > 0:
-                    shapes[0].setOpacity(shapes[0].opacity - 0.01)
-                else:
-                    hit_tracker[0] = True
+                mouse_counter[0] += 1
+                if 0 < mouse_counter[0] < CHNG_INTERVAL:
+                    shapes[0].setOpacity(shapes[0].opacity - ADJ_INTERVAL)
+                elif mouse_counter[0] == CHNG_INTERVAL:
+                    shapes[0].setOpacity(OPACITY_THRES)
+                elif mouse_counter[0] == REQUIRED_FRAMES:
+                    shapes[0].setOpacity(0.0)
                     mouse_times[0] = clock.getTime()
             elif shapes[1].contains(mouse):
-                if shapes[1].opacity > 0:
-                    shapes[1].setOpacity(shapes[1].opacity - 0.01)
-                else:
-                    hit_tracker[1] = True
+                mouse_counter[1] += 1
+                if 0 < mouse_counter[1] < CHNG_INTERVAL:
+                    shapes[1].setOpacity(shapes[1].opacity - ADJ_INTERVAL)
+                elif mouse_counter[1] == CHNG_INTERVAL:
+                    shapes[1].setOpacity(OPACITY_THRES)
+                elif mouse_counter[1] == REQUIRED_FRAMES:
+                    shapes[1].setOpacity(0.0)
                     mouse_times[1] = clock.getTime()
             elif shapes[2].contains(mouse):
-                mouse_times[2] = clock.getTime()
-                if shapes[2].opacity > 0:
-                    shapes[2].setOpacity(shapes[2].opacity - 0.01)
-                else:
-                    hit_tracker[2] = True
+                mouse_counter[2] += 1
+                if 0 < mouse_counter[2] < CHNG_INTERVAL:
+                    shapes[2].setOpacity(shapes[2].opacity - ADJ_INTERVAL)
+                elif mouse_counter[2] == CHNG_INTERVAL:
+                    shapes[2].setOpacity(OPACITY_THRES)
+                elif mouse_counter[2] == REQUIRED_FRAMES:
+                    shapes[2].setOpacity(0.0)
                     mouse_times[2] = clock.getTime()
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
-        if hit_tracker[0] is True and hit_tracker[1] is True and hit_tracker[2] is True:
+        if helper.checkOpacity(shapes):
             finish_time = clock.getTime()
             total_stimuli_time = finish_time - stimulus_beg_time
             print "\n%f\t%f\t%f" %(mouse_times[0], mouse_times[1], mouse_times[2])
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
-        curr_time = clock.getTime()
 
         #getting the mouse position and time A
-        #count =+1
-        #text_file = open("Experiment %d.txt" % count, "w")
-        #text_file.write("\t Time \t Position\n")
-        mouse_position_time(clock,mouse)
-
+        mouse_position_time(clock, mouse, text_file)
 
         # adjust count_down, to be displayed with the next flip
-
-        # todo: not sure how to do count down display if there is no window flip because that will affect timing
-        if (curr_time - beg_time) >= (wait_time - warning_time):
+        curr_time = clock.getTime()
+        if (curr_time - beg_time) >= (wait_time - warning_time - 0.1):
             count_label.setText(int(round(wait_time - (curr_time - beg_time))), 0)
 
 
-
-    if QUIT_EXP is True:
-        return -1
-
+    global stimulus_beg_time
     exp.addData("stimulus_begin_time", stimulus_beg_time)
     exp.addData("in_between_time", in_between_time)
     exp.addData("total_stimuli_time", total_stimuli_time)
@@ -179,7 +171,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     #closing the file at the end A
     text_file.close()
 
-    if curr_time >  wait_time:
+    if (curr_time-beg_time) >  wait_time:
         return 2
 
     # return status code based on correctness of sequence
