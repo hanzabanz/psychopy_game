@@ -43,8 +43,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
                                 colorSpace='rgb',alignHoriz='center', alignVert='center')
     helper.displayNewRound(window, next_label, keyboard)
 
-    # Default values
-    donetime = -1
 
     print "\n\n*** NEW TRIAL ***"
 
@@ -52,8 +50,10 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
     event.clearEvents()
 
     microphone.switchOn(sampleRate=16000)
-    name = "speech_file_%d.wav" %count
-    mic = microphone.AudioCapture(filename=name)
+    name = "speech_exp_%d.wav" %count
+    mic = microphone.AdvAudioCapture(filename=name)
+    # todo: can edit marker to output as sync signal; played when recording starts
+    mic.setMarker(tone=5000, secs=0.015, volume=0.0)
 
     # for block display
     #
@@ -66,9 +66,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
 
     # for block interaction
     #
-    timeout_counter = 0
     self.hub.clearEvents()
-    finished1 = False
 
     # store time right when clicking stimuli is presented for reference
     window.callOnFlip(track_speech_time, clock, mouse)
@@ -77,7 +75,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
     timeout_counter = 0
 
     start_time = clock.getTime()
-    finish_time = -1
 
     # records for length of wait_time
     mic.record(wait_time, block=False)
@@ -115,9 +112,7 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
     exp.addData("time1", start_time)
     exp.addData("time2", finish_time)
     if QUIT_EXP is True:
-
         return -1
-
     if timeout_counter == wait_time*60:
         return 2
     if timeout_counter < wait_time*60: # assume finished normally by clicking button
