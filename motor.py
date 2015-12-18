@@ -20,6 +20,14 @@ OPACITY_THRES = 0.25
 CHNG_INTERVAL = REQUIRED_FRAMES*0.75
 ADJ_INTERVAL = (1-OPACITY_THRES)/CHNG_INTERVAL
 
+#opening file to write the mouse position and time
+global text_file
+global count
+count =0
+count =+1
+text_file = open("Experiment %d.txt" % count, "w")
+text_file.write("\t Time \t Position\n")
+
 # called on initial flip when all 3 stimuli appear
 def track_time(clock, mouse):
     global stimulus_beg_time
@@ -35,8 +43,10 @@ def mouse_position_time(clock, mouse, text_file):
     clock_time = str(clock.getTime())
     text_file.write(clock_time)
     text_file.write("\t")
-    mouse_pos = str(mouse.getPos())
-    text_file.write(mouse_pos)
+    mouse_pos = (mouse.getPos())
+    text_file.write(str(mouse_pos[0]))
+    text_file.write("\t")
+    text_file.write(str(mouse_pos[1]))
     text_file.write("\n")
 
 
