@@ -22,7 +22,7 @@ def track_speech_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(speech_beg_time)
 
 
-def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp):
+def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp, count):
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'', pos = [0, -0.6], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
@@ -51,6 +51,10 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
     QUIT_EXP = False
     event.clearEvents()
 
+    microphone.switchOn(sampleRate=16000)
+    name = "speech_file_%d.wav" %count
+    mic = microphone.AudioCapture(filename=name)
+
     # for block display
     #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
@@ -65,8 +69,6 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
     timeout_counter = 0
     self.hub.clearEvents()
     finished1 = False
-    microphone.switchOn(sampleRate=16000)
-    mic = microphone.AudioCapture()
 
     # store time right when clicking stimuli is presented for reference
     window.callOnFlip(track_speech_time, clock, mouse)

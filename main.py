@@ -198,7 +198,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                                 if trial_type == 0:
                                     status = motor.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp, num)
                                 elif trial_type == 1:
-                                    status = speech.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp)
+                                    status = speech.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp, num)
                                 elif trial_type == 2:
                                     status = eye.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp, num)
 
@@ -215,6 +215,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                 for num in range(num_random):
                     motor_count = 0
                     eye_count = 0
+                    speech_count = 0
 
                     # check for disabled trials and choose a random trial type out of the enabled types
                     trial_array = []
@@ -261,7 +262,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                                 status = motor.trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp, motor_count)
                                 motor_count += 1
                             elif trial_type == 1:
-                                status = speech.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp)
+                                status = speech.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp, speech_count)
+                                speech_count += 1
                             elif trial_type == 2:
                                 status = eye.trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp, eye_count)
                                 eye_count += 1
