@@ -21,7 +21,9 @@ def eye_position_time(clock, gpos, text_file):
     clock_time = str(clock.getTime())
     text_file.write(clock_time)
     text_file.write("\t")
-    text_file.write(str(gpos))
+    text_file.write(str(gpos[0]))
+    text_file.write("\t")
+    text_file.write(str(gpos[1]))
     text_file.write("\n")
 
 
