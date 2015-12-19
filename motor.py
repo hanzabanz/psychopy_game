@@ -1,32 +1,24 @@
-__author__ = 'hannah'
-
-"""
-Accurate mouse click timing implemented
-Current mouse implementation means that we can't track the duration of mouse click
-Will need combination of event and iohub.mouse for both
-
-stimulus_beg_time: time when all the stimuli appear and the interaction time begins (based on total clock time)
-in_between_time: time between when the last block disappears (so it includes the last pause before second
-    instructions) and when all the blocks actually appear. (based on total clock time)
-
-"""
-
 from psychopy import event
 from psychopy import visual
 import helper
 
+__author__ = 'hannah'
+"""
+Current implementation has resolution of 60 Hz because there is no individual mouse clicks to save timing.
+Timing is dependent on frame rate.
+Saves mouse position throughout trial in file named "motor_exp_##.txt".
+
+stimulus_beg_time: time when all the stimuli appear and the interaction time begins (based on total clock time)
+in_between_time: time between when the last block disappears (so it includes the last pause before second
+    instructions) and when all the blocks actually appear. (based on total clock time)
+"""
+
+# Values set for the stimuli fading out rate/intensity
 REQUIRED_FRAMES = 40
 OPACITY_THRES = 0.25
 CHNG_INTERVAL = REQUIRED_FRAMES*0.75
 ADJ_INTERVAL = (1-OPACITY_THRES)/CHNG_INTERVAL
 
-#opening file to write the mouse position and time
-global text_file
-global count
-count =0
-count =+1
-text_file = open("Experiment %d.txt" % count, "w")
-text_file.write("\t Time \t Position\n")
 
 # called on initial flip when all 3 stimuli appear
 def track_time(clock, mouse):
@@ -38,7 +30,7 @@ def track_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(stimulus_beg_time)
 
 
-# called to output data in excel file with position of the mouse and time
+# called to write data in excel file with position of the mouse and time
 def mouse_position_time(clock, mouse, text_file):
     clock_time = str(clock.getTime())
     text_file.write(clock_time)
@@ -50,7 +42,23 @@ def mouse_position_time(clock, mouse, text_file):
     text_file.write("\n")
 
 
-def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wait_time, warning_time, exp, count):
+def trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, warning_time, exp, count):
+    """
+    Main motor type function
+    :param clock: clock used for standardized timing; initialized in the main experimental loop
+    :param window: display window
+    :param shapes: array of shape objects to be used (not already randomized)
+    :param mouse: mouse device
+    :param text_color: color for text
+    :param centered: true if blocks are to be centered, false otherwise
+    :param wait_time: max seconds for trial to wait before continuing if trial is not completed
+    :param warning_time: num of seconds left to begin countdown
+    :param exp: experiment object for adding trial data
+    :param count: number of motor trials during this experiment for file naming
+    :return: status of trial where 0 = completed but incorrect; 1 = completed and correct; 2 = incomplete
+    """
+
+    # Default Value Set Up for Timing #
     global stimulus_beg_time
     stimulus_beg_time = -1
     global in_between_time
@@ -58,10 +66,11 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     global total_stimuli_time
     total_stimuli_time = -1
 
+    # Position Tracking File Set Up #
     text_file = open("motor_exp_%d.txt" % count, "w")
     text_file.write("Time \t Position\n")
 
-    # Text values
+    # Text Values #
     count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
 
@@ -71,58 +80,58 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
 
     next_label = visual.TextStim(window, units='norm', text=u'Motor Round', pos=[0,0], height=0.1, color=text_color,
                                 colorSpace='rgb',alignHoriz='center', alignVert='center')
-    helper.displayNewRound(window, next_label, keyboard)
 
-    # Default values
+    # Display round name
+    helper.displayNewRound(window, next_label)
+
+    # Set up default values for tracking mouse click timing
     mouse_times = [-1, -1, -1]
     mouse_counter = [0, 0, 0]
-
     length = len(shapes)
-
-    print "\n\n*** NEW TRIAL ***"
-
-    QUIT_EXP = False
     event.clearEvents()
 
-    # for block display
-    #
+    # block sequence display #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
-
     global in_between_time
-    in_between_time = helper.drawSequence(window, shapes, keyboard, clock)
-
+    in_between_time = helper.drawSequence(window, shapes, clock)
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
-    # second instructions
+    # instructions are displayed #
     self.hub.clearEvents('all')
     for nFrames in range(200):
         second_label.draw()
         window.flip()
 
-    # for block interaction
-    #
+    # for block interaction #
     beg_time = clock.getTime()
     curr_time = clock.getTime()
     self.hub.clearEvents()
 
-    # changes location of shapes if centered (so that they don't overlap)
+    # changes location of shapes if centered, so that they don't overlap
     if centered and length > 1:
         helper.adjustShapeLoc(shapes)
 
-    # store time right when clicking stimuli is presented for reference
+    # store time right when interactive stimuli is presented for reference
     window.callOnFlip(track_time, clock, mouse)
 
+    # draw the interactive stimuli
     [s.draw() for s in shapes]
     window.flip()
+
+    # set up the initial mouse position
     mouse.getPos()
 
+    # loop until trial finished or timed out
     while curr_time - beg_time < wait_time:
+        # redraw the stimuli every window flip
         [s.draw() for s in shapes]
         count_label.draw()
         window.flip()
-        # Check for mouse clicks and location
-        # even if not all present, goes off location
-        # todo: put this back in helper function
+
+        # Check for mouse clicks and location; even if not all present, goes off location.
+        # First checks if mouse is within a block, then fades that block out according to the specified
+        # constant values.
+        # If the shape is pressed long enough to set it to 0 opacity, then the timing of that setting is recorded.
         buttons = mouse.getPressed()
         if buttons[0] == 1:
             if shapes[0].contains(mouse):
@@ -161,15 +170,16 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
 
-        #getting the mouse position and time A
+        # gets and saves the mouse position and time A
         mouse_position_time(clock, mouse, text_file)
 
-        # adjust count_down, to be displayed with the next flip
+        # adjust countdown value, to be displayed with the next flip
         curr_time = clock.getTime()
         if (curr_time - beg_time) >= (wait_time - warning_time - 0.1):
             count_label.setText(int(round(wait_time - (curr_time - beg_time))), 0)
 
 
+    # save data in the experiment file
     global stimulus_beg_time
     exp.addData("stimulus_begin_time", stimulus_beg_time)
     exp.addData("in_between_time", in_between_time)
@@ -178,13 +188,12 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
     exp.addData("time2", mouse_times[1])
     exp.addData("time3", mouse_times[2])
 
-    #closing the file at the end A
+    # closes the position tracking file at the end A
     text_file.close()
 
+    # return status code based on correctness of sequence
     if (curr_time-beg_time) >  wait_time:
         return 2
-
-    # return status code based on correctness of sequence
     if length == 1:
         return 1
     elif length == 2:
@@ -197,4 +206,5 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, centered, wa
             return 1  # correct
         else:
             return 0  # not correct
+    return -1
 

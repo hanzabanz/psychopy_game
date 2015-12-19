@@ -1,16 +1,13 @@
-__author__ = 'hannah'
-
-"""
-Accurate mouse click timing implemented
-Current mouse implementation means that we can't track the duration of mouse click
-Will need combination of event and iohub.mouse for both
-"""
-
 from psychopy import event
 from psychopy import visual
 from psychopy import microphone
 import helper
 
+__author__ = 'hannah'
+"""
+Records speech for a duration of designated wait time.
+Saves the recording file as "speech_exp_##-######-##.wav", where the first number is trial count in current experiment.
+"""
 
 # called on initial flip when all 3 stimuli appear
 def track_speech_time(clock, mouse):
@@ -22,7 +19,29 @@ def track_speech_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(speech_beg_time)
 
 
-def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, warning_time, exp, count):
+def trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, count):
+    """
+    Main speech type function
+    :param clock: clock used for standardized timing; initialized in the main experimental loop
+    :param window: display window
+    :param shapes: array of shape objects to be used (not already randomized)
+    :param mouse: mouse device
+    :param text_color: color for text
+    :param wait_time: max seconds for trial to wait before continuing if trial is not completed
+    :param warning_time: num of seconds left to begin countdown
+    :param exp: experiment object for adding trial data
+    :param count: number of speech trials during this experiment for file naming
+    :return: status of trial where 0 = completed but incorrect; 1 = completed and correct; 2 = incomplete
+    """
+
+    # Default Value Set Up for Timing #
+    global stimulus_beg_time
+    stimulus_beg_time = -1
+    global in_between_time
+    in_between_time = -1
+    global total_stimuli_time
+    total_stimuli_time = -1
+
     # Text values
     count_label = visual.TextStim(window, units='norm', text=u'', pos = [0, -0.6], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
@@ -37,67 +56,55 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
     done_button = visual.Rect(window, width=0.5, height=0.25, lineColor=(0, 0, 0), lineWidth=2,
                               lineColorSpace='rgb', pos=(0, -0.25))
 
-    BLOCK_LIST = [second_label, done_button, done_label]
-
     next_label = visual.TextStim(window, units='norm', text=u'Speech Round', pos=[0,0], height=0.1, color=text_color,
                                 colorSpace='rgb',alignHoriz='center', alignVert='center')
-    helper.displayNewRound(window, next_label, keyboard)
 
+    BLOCK_LIST = [second_label, done_button, done_label]
 
-    print "\n\n*** NEW TRIAL ***"
+    # Display round name
+    helper.displayNewRound(window, next_label)
 
-    QUIT_EXP = False
-    event.clearEvents()
-
+    # Microphone Set Up #
     microphone.switchOn(sampleRate=16000)
     name = "speech_exp_%d.wav" %count
     mic = microphone.AdvAudioCapture(filename=name)
     # todo: can edit marker to output as sync signal; played when recording starts
+    # marker currently set to not output any sound on onset of recording
     mic.setMarker(tone=5000, secs=0.015, volume=0.0)
 
-    # for block display
-    #
+    # Block Sequence Display #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
-
     global in_between_time
-    in_between_time = helper.drawSequence(window, shapes, keyboard, clock)
-
+    in_between_time = helper.drawSequence(window, shapes, clock)
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
-    # for block interaction
-    #
+    # for block interaction #
+    self.hub.clearEvents()
+    start_time = clock.getTime()
+    timeout_counter = 0
     self.hub.clearEvents()
 
     # store time right when clicking stimuli is presented for reference
     window.callOnFlip(track_speech_time, clock, mouse)
     window.flip()
 
-    timeout_counter = 0
-
-    start_time = clock.getTime()
-
-    # records for length of wait_time
+    # records for length of specified wait time
     mic.record(wait_time, block=False)
     while mic.recorder.running:
         [s.draw() for s in BLOCK_LIST]
         count_label.draw()
-        flip_time=window.flip()
+        window.flip()
         timeout_counter += 1
         buttons, times = mouse.getPressed(getTime=True)
         if mouse.isPressedIn(done_button, buttons=[0]):
             mic.stop()
             break
 
+        # adjust countdown value, to be displayed with the next flip
         if timeout_counter >= ((wait_time - warning_time)*60) and timeout_counter % 60 == 0:
             count_label.setText(((wait_time*60)-timeout_counter)/60)
 
-        for evt in keyboard.getEvents():
-            demo_timeout_start = evt.time
-            if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
-                mic.stop()
-                QUIT_EXP = True
-                break
-
+    # turn off microphone and saves the audio file automatically
     microphone.switchOff()
     finish_time = clock.getTime()
 
@@ -106,13 +113,14 @@ def trial(self, clock, window, shapes, keyboard, mouse, text_color, wait_time, w
     print "\n%f" %(finish_time)
     print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
 
+    # save data in the experiment file
     exp.addData("stimulus_begin_time", speech_beg_time)
     exp.addData("in_between_time", in_between_time)
     exp.addData("total_stimuli_time", total_stimuli_time)
     exp.addData("time1", start_time)
     exp.addData("time2", finish_time)
-    if QUIT_EXP is True:
-        return -1
+
+    # return status code based on correctness of sequence
     if timeout_counter == wait_time*60:
         return 2
     if timeout_counter < wait_time*60: # assume finished normally by clicking button

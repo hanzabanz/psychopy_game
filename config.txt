@@ -14,7 +14,7 @@ num_random = 5
 
 # Whether or not to have blocks appear only in the center or use the corners.
 # For single block trials, the block will always be in the center.
-centered = True
+centered = False
 
 # num_blocks_x can be anything between 1-3, including lists delineated by commands, where a random number from the list
 # will be chosen as the block size.
@@ -23,23 +23,23 @@ centered = True
 #
 # If random modes is False, then the program will cycle through a number of trials using the specified block numbers.
 # If random_blocks_x is on, then the random number of blocks per trial will be specified.
-# The same process will be repeated for speech and eye. num_reps_x can be set to 0 in order to indicate skipping.
+# The same process will be repeated for speech and eye. num_reps_x can be set to 0 or -1 in order to skipping trial type.
 
 num_reps_motor = -1
 num_blocks_motor = 3
 random_blocks_motor = False
 
-num_reps_speech = -1
+num_reps_speech = 1
 num_blocks_speech = 3
-random_blocks_speech = True
+random_blocks_speech = False
 
-num_reps_eye = 1
-num_blocks_eye = 2
-random_blocks_eye = True
+num_reps_eye = -1
+num_blocks_eye = 3
+random_blocks_eye = False
 
-# Wait time is the max number of seconds a single trial will wait before continuing.
+# Wait time is the max number of seconds a single trial will wait before continuing, if trial is not completed yet.
 # Warning time is how many seconds left the visible countdown will begin.
-wait_time = 15
+wait_time = 10
 warning_time = 5
 
 #### Display Settings ####

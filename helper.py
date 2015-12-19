@@ -19,42 +19,29 @@ def getFlipTime(clock):
     :param clock: clock created using psychopy.core
     :return: time
     """
-    global in_between_time
     in_between_time = clock.getTime()
     return in_between_time
 
 
-def drawSequence(window, shapes, keyboard, clock):
+def drawSequence(window, shapes, clock):
     """ Draws the array of shapes sequentially.
     :param window: window object
     :param shapes: array of the stimuli to be drawn, can be of length 1 thru 3
-    :param keyboard: psychopy keyboard used for premature quitting
     :param clock: clock created using psychopy.core
     :return: time from the last flip with a stimulus until the wait period after the sequence is over
     """
-    QUIT_EXP = False
-    global in_between_time
     in_between_time = -1
 
     if len(shapes) == 1:
         for frameN in range(125):
-            if QUIT_EXP is True:
-                return -1
             if 0 <= frameN < 100:
                 shapes[0].draw()
             # if frameN is > 300, there will just be a pause
             if frameN == 100:
                 window.callOnFlip(getFlipTime, clock)
             window.flip()
-            for evt in keyboard.getEvents():
-                demo_timeout_start=evt.time
-                if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
-                    QUIT_EXP=True
-                    break
     elif len(shapes) == 2:
         for frameN in range(250):
-            if QUIT_EXP is True:
-                return -1
             if 0 <= frameN < 100:
                 shapes[0].draw()
             if 126 <= frameN < 225:
@@ -63,15 +50,8 @@ def drawSequence(window, shapes, keyboard, clock):
             if frameN == 225:
                 window.callOnFlip(getFlipTime, clock)
             window.flip()
-            for evt in keyboard.getEvents():
-                demo_timeout_start=evt.time
-                if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
-                    QUIT_EXP=True
-                    break
     elif len(shapes) == 3:
         for frameN in range(375):
-            if QUIT_EXP is True:
-                return -1
             if 0 <= frameN < 100:
                 shapes[0].draw()
             if 126 <= frameN < 225:
@@ -82,13 +62,7 @@ def drawSequence(window, shapes, keyboard, clock):
             if frameN == 350:
                 window.callOnFlip(getFlipTime, clock)
             window.flip()
-            for evt in keyboard.getEvents():
-                demo_timeout_start=evt.time
-                if (evt.key.lower()=='q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers)):
-                    QUIT_EXP=True
-                    break
 
-    global in_between_time
     return in_between_time
 
 
@@ -101,6 +75,7 @@ def checkMouseTimes(mouse, shapes, mouse_times, clock, hit_tracker):
     :param shapes: array of the stimuli to be drawn, can be of length 1 thru 3
     :param mouse_times: array to fill with mouse click times
     :param clock: clock created using psychopy.core
+    :param hit_tracker: array that tracks whether the mouse has been clicked
     :return: 0 if successful
     """
     if mouse.mouseMoved():
@@ -193,11 +168,10 @@ def resetTrial(shapes, centered):
     return 0
 
 
-def displayNewRound(window, next_label, keyboard):
-    """ Displays "New Round" label to indicate a new trial beginning.
+def displayNewRound(window, next_label):
+    """ Displays new round label to indicate a new trial beginning and trial type.
     :param window: window to be displayed on
     :param next_label: label from psychopy visual stim that states the new round information
-    :param keyboard: psychopy keyboard
     :param QUIT_EXP: False if the premature quitting keys have not been pressed
     :return:
     """
@@ -205,9 +179,6 @@ def displayNewRound(window, next_label, keyboard):
     for frameN in range(175):
         next_label.draw()
         window.flip()
-        for evt in keyboard.getEvents():
-            if evt.key.lower() == 'q' and ('lctrl' in evt.modifiers or 'rctrl' in evt.modifiers):
-                break
     wait(window, 25)
     return 0
 
