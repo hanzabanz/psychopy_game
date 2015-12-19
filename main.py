@@ -1,22 +1,23 @@
-__author__ = 'hannah'
-# -*- coding: utf-8 -*-
-"""
-main.py
-"""
 from psychopy import core, visual
 from psychopy import event as evt
 from psychopy.iohub import ioHubExperimentRuntime
 from psychopy import data
 
-import subprocess
-import re
-
 import motor
 import speech
 import eye
 import helper
-import random
 
+import random
+import serial
+import subprocess
+import re
+
+__author__ = 'hannah'
+# -*- coding: utf-8 -*-
+"""
+main.py
+"""
 
 class ExperimentRuntime(ioHubExperimentRuntime):
 
@@ -73,6 +74,9 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         keyboard = self.devices.keyboard
         mouse = evt.Mouse(win=window)
         mouse.getPos()
+
+        # todo: implement serial output for sync; should it be 1-5 (or such) repeated to prevent overlap?
+        ser = serial.Serial('dev/ttyUSB0', 9600)
 
         # Instructions and Button #
         title_label = visual.TextStim(window, units='norm', text=u'Remember the  sequence of  colored blocks.',
@@ -182,11 +186,11 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
                         # track types of trial
                         if trial_type == 0:
-                            status = motor.trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, warning_time, exp, num)
+                            status = motor.trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, warning_time, exp, num, ser)
                         elif trial_type == 1:
-                            status = speech.trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, num)
+                            status = speech.trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, num, ser)
                         elif trial_type == 2:
-                            status = eye.trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, num)
+                            status = eye.trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, num, ser)
 
                         # always add shape colors since they will be relevant in every modality
                         exp.addData('correct', status)
@@ -195,11 +199,11 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         # Randomized Mode #
         else:
             # randomize everything, except for total number of trials
+            # set the total counts of each trial type to 0
+            motor_count = 0
+            eye_count = 0
+            speech_count = 0
             for num in range(num_random):
-                motor_count = 0
-                eye_count = 0
-                speech_count = 0
-
                 # check for disabled trials and choose a random trial type out of the enabled types
                 trial_array = []
                 if num_reps_motor != -1:
@@ -241,13 +245,13 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
                     # track types of trial
                     if trial_type == 0:
-                        status = motor.trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, warning_time, exp, motor_count)
+                        status = motor.trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, warning_time, exp, motor_count, ser)
                         motor_count += 1
                     elif trial_type == 1:
-                        status = speech.trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, speech_count)
+                        status = speech.trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, speech_count, ser)
                         speech_count += 1
                     elif trial_type == 2:
-                        status = eye.trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, eye_count)
+                        status = eye.trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, eye_count, ser)
                         eye_count += 1
 
                     # always add shape colors since they will be relevant in every modality

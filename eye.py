@@ -33,7 +33,7 @@ def eye_position_time(clock, gpos, text_file):
     text_file.write("\n")
 
 
-def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, count):
+def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, count, ser):
     """
     Main eye tracking type function
     :param clock: clock used for standardized timing; initialized in the main experimental loop
@@ -45,6 +45,7 @@ def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_
     :param warning_time: num of seconds left to begin countdown
     :param exp: experiment object for adding trial data
     :param count: number of eye tracking trials during this experiment for file naming
+    :param ser: serial port that links to XBee for syncing
     :return: status of trial where 0 = completed but incorrect; 1 = completed and correct; 2 = incomplete
     """
 

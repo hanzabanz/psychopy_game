@@ -19,7 +19,7 @@ def track_speech_time(clock, mouse):
     print "%f TIME FOR INITIAL STIMULUS" %(speech_beg_time)
 
 
-def trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, count):
+def trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, count, ser):
     """
     Main speech type function
     :param clock: clock used for standardized timing; initialized in the main experimental loop
@@ -31,6 +31,7 @@ def trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_tim
     :param warning_time: num of seconds left to begin countdown
     :param exp: experiment object for adding trial data
     :param count: number of speech trials during this experiment for file naming
+    :param ser: serial port that links to XBee for syncing
     :return: status of trial where 0 = completed but incorrect; 1 = completed and correct; 2 = incomplete
     """
 
