@@ -19,6 +19,9 @@ __author__ = 'hannah'
 main.py
 """
 
+# TODO: some XBee serial reference: https://pypi.python.org/pypi/XBee
+# http://www.prodigyproductionsllc.com/articles/programming/add-xbee-to-raspberry-pi-with-python/
+
 class ExperimentRuntime(ioHubExperimentRuntime):
 
     def run(self, *args):
@@ -76,7 +79,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         mouse.getPos()
 
         # todo: implement serial output for sync; should it be 1-5 (or such) repeated to prevent overlap?
-        ser = serial.Serial('dev/ttyUSB0', 9600)
+        # ser = serial.Serial('dev/ttyUSB0', 9600)
+        ser = -1
 
         # Instructions and Button #
         title_label = visual.TextStim(window, units='norm', text=u'Remember the  sequence of  colored blocks.',
@@ -263,6 +267,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         for frameN in range(75):
             end_label.draw()
             window.flip()
+        window.close()
+        core.quit()
 
 
 ####### Main Script Launching Code #######

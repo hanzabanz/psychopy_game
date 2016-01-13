@@ -29,7 +29,7 @@ num_reps_motor = -1
 num_blocks_motor = 3
 random_blocks_motor = False
 
-num_reps_speech = 1
+num_reps_speech = 2
 num_blocks_speech = 3
 random_blocks_speech = False
 

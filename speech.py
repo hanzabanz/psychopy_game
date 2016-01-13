@@ -98,7 +98,6 @@ def trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_tim
         timeout_counter += 1
         buttons, times = mouse.getPressed(getTime=True)
         if mouse.isPressedIn(done_button, buttons=[0]):
-            mic.stop()
             break
 
         # adjust countdown value, to be displayed with the next flip
