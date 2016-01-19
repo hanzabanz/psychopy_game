@@ -25,8 +25,12 @@ main.py
 class ExperimentRuntime(ioHubExperimentRuntime):
 
     def run(self, *args):
+        test = False
+        if args[1] == 1:
+            test = True
+
         #### READ CONFIGURATIONS (from config.txt) ####
-        with open('config.txt', 'r') as f:
+        with open(args[0], 'r') as f:
             config_text = f.read()
         config_text = config_text.replace(' ', '')
 
@@ -123,20 +127,23 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         #### INITIAL STARTER SCREEN ####
 
         # Initial Instruction Page #
-        title_label.draw()
-        continue_label.draw()
-        continue_button.draw()
-        window.flip()
-        self.hub.clearEvents('all')
+        if test == False:
+            title_label.draw()
+            continue_label.draw()
+            continue_button.draw()
+            window.flip()
+            self.hub.clearEvents('all')
 
-        FINISH_INSTR = False
-        while FINISH_INSTR is False:
-            buttons = mouse.getPressed()
-            if buttons[0]:
-                if mouse.isPressedIn(continue_button, buttons=[0]):
-                    break
+            FINISH_INSTR = False
+            while FINISH_INSTR is False:
+                buttons = mouse.getPressed()
+                if buttons[0]:
+                    if mouse.isPressedIn(continue_button, buttons=[0]):
+                        break
 
         #### TRIALS OF BLOCK GAME ####
+        if test == True:
+            file_name = 'test_outputs/%s' %file_name
         exp = data.ExperimentHandler(name=experiment_name, version=version, extraInfo={'participant':participant_id},
                                      runtimeInfo=None, originPath=None, savePickle=True, saveWideText=True,
                                      dataFileName=file_name)
@@ -267,18 +274,24 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         for frameN in range(75):
             end_label.draw()
             window.flip()
-        window.close()
-        core.quit()
 
 
 ####### Main Script Launching Code #######
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
+#
+#     def main():
+#         # subprocess.call(['C:\Program Files (x86)\EyeTribe\Server\EyeTribe.exe'])
+#         process = subprocess.Popen(['C:\Program Files (x86)\EyeTribe\Server\EyeTribe.exe'], stdout=subprocess.PIPE)
+#         runtime = ExperimentRuntime("", "experiment_config.yaml")
+#         runtime.start()
+#
+#     main()
 
-    def main():
-        # subprocess.call(['C:\Program Files (x86)\EyeTribe\Server\EyeTribe.exe'])
-        process = subprocess.Popen(['C:\Program Files (x86)\EyeTribe\Server\EyeTribe.exe'], stdout=subprocess.PIPE)
-        runtime = ExperimentRuntime("", "experiment_config.yaml")
-        runtime.start()
+def main(config_filename, test):
+    process = subprocess.Popen(['C:\Program Files (x86)\EyeTribe\Server\EyeTribe.exe'], stdout=subprocess.PIPE)
+    runtime = ExperimentRuntime("", "experiment_config.yaml")
+    runtime.start(config_filename, test)
 
-    main()
+## run the following for normal function ##
+main('config.txt', 1)

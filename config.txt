@@ -25,11 +25,11 @@ centered = False
 # If random_blocks_x is on, then the random number of blocks per trial will be specified.
 # The same process will be repeated for speech and eye. num_reps_x can be set to 0 or -1 in order to skipping trial type.
 
-num_reps_motor = -1
+num_reps_motor = 1
 num_blocks_motor = 3
 random_blocks_motor = False
 
-num_reps_speech = 2
+num_reps_speech = -1
 num_blocks_speech = 3
 random_blocks_speech = False
 
