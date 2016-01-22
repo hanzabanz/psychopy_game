@@ -4,6 +4,7 @@ from psychopy.iohub import ioHubExperimentRuntime
 from psychopy import data
 
 import motor
+import keyboard
 import speech
 import eye
 import helper
@@ -50,6 +51,10 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         num_blocks_motor = (re.search('num_blocks_motor.+?\n', config_text).group(0)[17:-1]).split(',')
         random_blocks_motor = re.search('random_blocks_motor.+?\n', config_text).group(0)[20:-1].lower() == "true"
 
+        num_reps_keyboard = int(re.search('num_reps_keyboard.+?\n', config_text).group(0)[18:-1])
+        num_blocks_keyboard = (re.search('num_blocks_keyboard.+?\n', config_text).group(0)[20:-1]).split(',')
+        random_blocks_keyboard = re.search('random_blocks_keyboard.+?\n', config_text).group(0)[23:-1].lower() == "true"
+
         num_reps_speech = int(re.search('num_reps_speech.+?\n', config_text).group(0)[16:-1])
         num_blocks_speech = (re.search('num_blocks_speech.+?\n', config_text).group(0)[18:-1]).split(',')
         random_blocks_speech = re.search('random_blocks_speech.+?\n', config_text).group(0)[21:-1].lower() == "true"
@@ -78,7 +83,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         # Device and Event Set Up #
         clock = core.Clock()
         display = self.devices.display
-        keyboard = self.devices.keyboard
+        keys = self.devices.keyboard
         mouse = evt.Mouse(win=window)
         mouse.getPos()
 
@@ -151,7 +156,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         # Non-Randomized Mode #
         if random_modes is False:
             # if not randomized between modes, then go through each and run its respective number of trials
-            for trial_type in range(3):
+            for trial_type in range(4):
                 if trial_type == 0:
                     name = "motor"
                     num_reps = num_reps_motor
@@ -167,6 +172,11 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                     num_reps = num_reps_eye
                     temp_blocks = num_blocks_eye
                     random_blocks_var = random_blocks_eye
+                elif trial_type == 3:
+                    name = "keyboard"
+                    num_reps = num_reps_keyboard
+                    temp_blocks = num_blocks_keyboard
+                    random_blocks_var = random_blocks_keyboard
 
                 for num in range(num_reps):
                     # assign the random variables
@@ -202,6 +212,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                             status = speech.trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, num, ser)
                         elif trial_type == 2:
                             status = eye.trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, num, ser)
+                        elif trial_type == 3:
+                            status = keyboard.trial(self, clock, window, shapes, keys, text_color, centered, wait_time, warning_time, exp, num, ser)
 
                         # always add shape colors since they will be relevant in every modality
                         exp.addData('correct', status)
@@ -214,6 +226,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
             motor_count = 0
             eye_count = 0
             speech_count = 0
+            keyboard_count = 0
             for num in range(num_random):
                 # check for disabled trials and choose a random trial type out of the enabled types
                 trial_array = []
@@ -223,6 +236,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                     trial_array.append(1)
                 if num_reps_eye != -1:
                     trial_array.append(2)
+                if num_reps_keyboard != -1:
+                    trial_array.append(3)
                 if len(trial_array) == 0:
                     print "No trial modalities enabled."
                     break
@@ -237,6 +252,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                     name = "speech"
                 elif trial_type == 2:
                     name = "eye"
+                elif trial_type == 3:
+                    name = "keyboard"
 
                 status = 1
                 trial_loop = data.TrialHandler(trialList=[], nReps=1, name=name)
@@ -264,6 +281,9 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                     elif trial_type == 2:
                         status = eye.trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, eye_count, ser)
                         eye_count += 1
+                    elif trial_type == 3:
+                        status = keyboard.trial(self, clock, window, shapes, keys, text_color, centered, wait_time, warning_time, exp, keyboard_count, ser)
+                        keyboard_count += 1
 
                     # always add shape colors since they will be relevant in every modality
                     exp.addData('correct', status)

@@ -25,7 +25,7 @@ centered = False
 # If random_blocks_x is on, then the random number of blocks per trial will be specified.
 # The same process will be repeated for speech and eye. num_reps_x can be set to 0 or -1 in order to skipping trial type.
 
-num_reps_motor = 1
+num_reps_motor = -1
 num_blocks_motor = 3
 random_blocks_motor = False
 
@@ -37,9 +37,13 @@ num_reps_eye = -1
 num_blocks_eye = 3
 random_blocks_eye = False
 
+num_reps_keyboard = 1
+num_blocks_keyboard = 3
+random_blocks_keyboard = False
+
 # Wait time is the max number of seconds a single trial will wait before continuing, if trial is not completed yet.
 # Warning time is how many seconds left the visible countdown will begin.
-wait_time = 10
+wait_time = 20
 warning_time = 5
 
 #### Display Settings ####
