@@ -35,6 +35,7 @@ def track_time(clock, mouse):
     in_between_time = (clock.getTime() - in_between_time)
     print "%f TIME FOR INITIAL STIMULUS" %(stimulus_beg_time)
 
+
 def mapKeys(shapes):
     """
     Maps the shapes to the respective keys by checking the physical location.
@@ -77,7 +78,6 @@ def mapKeys(shapes):
             map.append('num_9')
 
     return map
-
 
 
 def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, warning_time, exp, count, ser):
@@ -157,6 +157,8 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
     [s.draw() for s in shapes]
     window.flip()
 
+    temp_time = -1
+
     # loop until trial finished or timed out
     while curr_time - beg_time < wait_time:
         # redraw the stimuli every window flip
@@ -165,43 +167,42 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
         window.flip()
 
         # If the shape is pressed long enough to set it to 0 opacity, then the timing of that setting is recorded.
-        # todo: check time stamp for clock, (http://pydoc.net/Python/PsychoPy/1.81.03/psychopy.event/) which would be iohubkeyboard device
-        events = keys.getKeys()
+        events = keys.getKeys()  # iohub device keyboard info
+        events2 = event.getKeys(timeStamped=clock)  # event keyboard with event timing based on clock input
+        for kbe in events2:
+            temp_time = kbe[1]
         for kbe in events:  # check for each key press
-            currTime = clock.getTime()
-            eventTime = kbe.time
-            print eventTime - currTime
             if kbe.type=='KEYBOARD_RELEASE' and kbe.duration > 0.5:  # only register if on key release of over 0.5s
                 if kbe.char == '7':
                     if keyMap[0] == 'num_7':
                         shapes[0].setOpacity(0)
-                        key_times[0] == currTime
+                        key_times[0] = temp_time
                     elif keyMap[1] == 'num_7':
                         shapes[1].setOpacity(0)
-                        key_times[1] == currTime
+                        key_times[1] = temp_time
                     elif keyMap[2] == 'num_7':
                         shapes[2].setOpacity(0)
-                        key_times[2] == currTime
+                        key_times[2] = temp_time
                 elif kbe.char == '9':
                     if keyMap[0] == 'num_9':
                         shapes[0].setOpacity(0)
-                        key_times[0] == currTime
+                        key_times[0] = temp_time
                     elif keyMap[1] == 'num_9':
                         shapes[1].setOpacity(0)
-                        key_times[1] == currTime
+                        key_times[1] = temp_time
                     elif keyMap[2] == 'num_9':
                         shapes[2].setOpacity(0)
-                        key_times[2] == currTime
+                        key_times[2] = temp_time
                 elif kbe.char == '3':
                     if keyMap[0] == 'num_3':
                         shapes[0].setOpacity(0)
-                        key_times[0] == currTime
+                        key_times[0] = temp_time
                     elif keyMap[1] == 'num_3':
                         shapes[1].setOpacity(0)
-                        key_times[1] == currTime
+                        key_times[1] = temp_time
                     elif keyMap[2] == 'num_3':
                         shapes[2].setOpacity(0)
-                        key_times[2] == currTime
+                        key_times[2] = temp_time
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if helper.checkOpacity(shapes):
@@ -216,6 +217,7 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
         if (curr_time - beg_time) >= (wait_time - warning_time - 0.1):
             count_label.setText(int(round(wait_time - (curr_time - beg_time))), 0)
 
+    event.clearEvents()
 
     # save data in the experiment file
     global stimulus_beg_time

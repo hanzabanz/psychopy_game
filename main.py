@@ -148,7 +148,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
         #### TRIALS OF BLOCK GAME ####
         if test == True:
-            file_name = 'test_outputs/%s' %file_name
+            file_name = '%s/%s' %('p'+(participant_id), file_name)
         exp = data.ExperimentHandler(name=experiment_name, version=version, extraInfo={'participant':participant_id},
                                      runtimeInfo=None, originPath=None, savePickle=True, saveWideText=True,
                                      dataFileName=file_name)
