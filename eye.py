@@ -140,6 +140,12 @@ def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_
     [s.draw() for s in shapes]
     window.flip()
 
+    # initialize the block vertices
+    shapes_verts = []
+    for num in range(len(shapes)):
+        shapes_verts.append(helper.pix_conv(window.size[0], window.size[1], shapes[num].width, shapes[num].height, shapes[num].pos[0], shapes[num].pos[1]))
+    print shapes_verts
+
     # loop until trial finished or timed out
     while curr_time - beg_time < wait_time:
         [s.draw() for s in shapes]
@@ -153,14 +159,13 @@ def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_
             continue
 
         # Check if eye position is within each block.
-        # If so, then the time is recorded and the opacity is changed according.
+        # If so, then the time is recorded and the opacity is changed accordingly.
         for num in range(length):
             s = shapes[num]
             if s.opacity == 0.0:
                 continue
-            verts = helper.pix_conv(window.size[0], window.size[1], s.width, s.height, s.pos[0], s.pos[1])
             if isinstance(gpos,(tuple,list)):
-                if verts[0] < gpos[0] < verts[1] and verts[3] < gpos[1] < verts[2]:
+                if shapes_verts[num][0] < gpos[0] < shapes_verts[num][1] and shapes_verts[num][3] < gpos[1] < shapes_verts[num][2]:
                     init_time_array[num] += 1
                     time_diff_array[num] = clock.getTime()
                     if init_time_array[num] == REQUIRED_FRAMES/2:
@@ -177,12 +182,13 @@ def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_
                     time_diff_array[num] = -1
                     s.setOpacity(1.0)
 
-        if isinstance(gpos,(tuple,list)):
-            # Adjusting eye tracking values to match norm units to display on the screen
-            gpos0_adj = (gpos[0]/window.size[1])*2
-            gpos1_adj = (gpos[1]/window.size[0])*2
-            gaze_dot.setPos([gpos0_adj, gpos1_adj])
-            gaze_dot.draw()
+        ## EYE TRACKING DISPLAY DOT; NOT NECESSARY FOR ACTUAL IMPLEMENTATION ##
+        # if isinstance(gpos,(tuple,list)):
+        #     # Adjusting eye tracking values to match norm units to display on the screen
+        #     gpos0_adj = (gpos[0]/window.size[1])*2
+        #     gpos1_adj = (gpos[1]/window.size[0])*2
+        #     gaze_dot.setPos([gpos0_adj, gpos1_adj])
+        #     gaze_dot.draw()
 
         # once the round is finished, use previous counters to calculate total time spent and individual position times
         if helper.checkOpacity(shapes):
@@ -192,7 +198,7 @@ def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
 
-        # gets and saves the mouse position and time
+        # gets and saves the eye position and time
         eye_position_time(clock, gpos, text_file)
 
         # adjust count_down, to be displayed with the next flip
