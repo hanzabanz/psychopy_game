@@ -17,8 +17,6 @@ in_between_time: time between when the last block disappears (so it includes the
     instructions) and when all the blocks actually appear. (based on total clock time)
 """
 
-# todo: add tracking for all key presses
-
 # Values set for the stimuli fading out rate/intensity
 REQUIRED_FRAMES = 40
 OPACITY_THRES = 0.25
@@ -105,6 +103,10 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
     global total_stimuli_time
     total_stimuli_time = -1
 
+    # Position Tracking File Set Up #
+    text_file = open("keys_exp_%d.txt" % count, "w")
+    text_file.write("Time\tKey Event\tKey Type\n")
+
     # Text Values #
     count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
                                   colorSpace='rgb255',alignHoriz='center', alignVert='center')
@@ -158,6 +160,7 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
     window.flip()
 
     temp_time = -1
+    key_char = ''
 
     # loop until trial finished or timed out
     while curr_time - beg_time < wait_time:
@@ -169,40 +172,27 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
         # If the shape is pressed long enough to set it to 0 opacity, then the timing of that setting is recorded.
         events = keys.getKeys()  # iohub device keyboard info
         events2 = event.getKeys(timeStamped=clock)  # event keyboard with event timing based on clock input
-        for kbe in events2:
+        for kbe in events2: # get accurate timing
+            key_char = kbe[0]
             temp_time = kbe[1]
-        for kbe in events:  # check for each key press
-            if kbe.type=='KEYBOARD_RELEASE' and kbe.duration > 0.5:  # only register if on key release of over 0.5s
-                if kbe.char == '7':
-                    if keyMap[0] == 'num_7':
-                        shapes[0].setOpacity(0)
-                        key_times[0] = temp_time
-                    elif keyMap[1] == 'num_7':
-                        shapes[1].setOpacity(0)
-                        key_times[1] = temp_time
-                    elif keyMap[2] == 'num_7':
-                        shapes[2].setOpacity(0)
-                        key_times[2] = temp_time
-                elif kbe.char == '9':
-                    if keyMap[0] == 'num_9':
-                        shapes[0].setOpacity(0)
-                        key_times[0] = temp_time
-                    elif keyMap[1] == 'num_9':
-                        shapes[1].setOpacity(0)
-                        key_times[1] = temp_time
-                    elif keyMap[2] == 'num_9':
-                        shapes[2].setOpacity(0)
-                        key_times[2] = temp_time
-                elif kbe.char == '3':
-                    if keyMap[0] == 'num_3':
-                        shapes[0].setOpacity(0)
-                        key_times[0] = temp_time
-                    elif keyMap[1] == 'num_3':
-                        shapes[1].setOpacity(0)
-                        key_times[1] = temp_time
-                    elif keyMap[2] == 'num_3':
-                        shapes[2].setOpacity(0)
-                        key_times[2] = temp_time
+            print kbe
+        for kbe in events: # use for recording keystrokes and durations
+            text_file.write(str(clock.getTime()))
+            text_file.write("\t")
+            text_file.write(kbe.type)
+            text_file.write("\t")
+            text_file.write(kbe.char)
+            text_file.write("\n")
+        if clock.getTime() - temp_time > 0.5:
+            if key_char == keyMap[0]:
+                shapes[0].setOpacity(0)
+                key_times[0] = temp_time
+            if key_char == keyMap[1]:
+                shapes[1].setOpacity(0)
+                key_times[1] = temp_time
+            if key_char == keyMap[2]:
+                shapes[2].setOpacity(0)
+                key_times[2] = temp_time
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if helper.checkOpacity(shapes):
