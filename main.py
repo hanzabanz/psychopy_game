@@ -209,7 +209,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                         if trial_type == 0:
                             status = motor.trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, warning_time, exp, num, ser)
                         elif trial_type == 1:
-                            status = speech.trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, num, ser)
+                            status = speech.trial(self, clock, window, shapes, mouse, keys, text_color, wait_time, warning_time, exp, num, ser)
                         elif trial_type == 2:
                             status = eye.trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, num, ser)
                         elif trial_type == 3:
@@ -276,7 +276,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
                         status = motor.trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, warning_time, exp, motor_count, ser)
                         motor_count += 1
                     elif trial_type == 1:
-                        status = speech.trial(self, clock, window, shapes, mouse, text_color, wait_time, warning_time, exp, speech_count, ser)
+                        status = speech.trial(self, clock, window, shapes, mouse, keys, text_color, wait_time, warning_time, exp, speech_count, ser)
                         speech_count += 1
                     elif trial_type == 2:
                         status = eye.trial(self, clock, window, shapes, text_color, centered, wait_time, warning_time, exp, eye_count, ser)
