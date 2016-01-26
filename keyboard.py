@@ -25,10 +25,9 @@ ADJ_INTERVAL = (1-OPACITY_THRES)/CHNG_INTERVAL
 
 
 # called on initial flip when all 3 stimuli appear
-def track_time(clock, mouse):
+def track_time(clock):
     global stimulus_beg_time
     stimulus_beg_time = clock.getTime()
-    mouse.clickReset()
     global in_between_time
     in_between_time = (clock.getTime() - in_between_time)
     print "%f TIME FOR INITIAL STIMULUS" %(stimulus_beg_time)
@@ -150,10 +149,9 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
 
     # Map the blocks in each corner to the respective keyboard events
     keyMap = mapKeys(shapes)
-    print keyMap
 
     # store time right when interactive stimuli is presented for reference
-    # window.callOnFlip(track_time, clock, keys)
+    window.callOnFlip(track_time, clock)
 
     # draw the interactive stimuli
     [s.draw() for s in shapes]
@@ -161,6 +159,7 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
 
     temp_time = -1
     key_char = ''
+    no_release = False
 
     # loop until trial finished or timed out
     while curr_time - beg_time < wait_time:
@@ -183,16 +182,38 @@ def trial(self, clock, window, shapes, keys, text_color, centered, wait_time, wa
             text_file.write("\t")
             text_file.write(kbe.char)
             text_file.write("\n")
-        if clock.getTime() - temp_time > 0.5:
+            if kbe.type == 'KEYBOARD_RELEASE':
+                no_release = False
+            elif kbe.type == 'KEYBOARD_PRESS':
+                no_release = True
+        if no_release is True:
             if key_char == keyMap[0]:
-                shapes[0].setOpacity(0)
-                key_times[0] = temp_time
-            if key_char == keyMap[1]:
-                shapes[1].setOpacity(0)
-                key_times[1] = temp_time
-            if key_char == keyMap[2]:
-                shapes[2].setOpacity(0)
-                key_times[2] = temp_time
+                key_counter[0] += 1
+                if 0 < key_counter[0] < CHNG_INTERVAL:
+                    shapes[0].setOpacity(shapes[0].opacity - ADJ_INTERVAL)
+                elif key_counter[0] == CHNG_INTERVAL:
+                    shapes[0].setOpacity(OPACITY_THRES)
+                elif key_counter[0] == REQUIRED_FRAMES:
+                    shapes[0].setOpacity(0.0)
+                    key_times[0] = temp_time
+            elif key_char == keyMap[1]:
+                key_counter[1] += 1
+                if 0 < key_counter[1] < CHNG_INTERVAL:
+                    shapes[1].setOpacity(shapes[1].opacity - ADJ_INTERVAL)
+                elif key_counter[1] == CHNG_INTERVAL:
+                    shapes[1].setOpacity(OPACITY_THRES)
+                elif key_counter[1] == REQUIRED_FRAMES:
+                    shapes[1].setOpacity(0.0)
+                    key_times[1] = temp_time
+            elif key_char == keyMap[2]:
+                key_counter[2] += 1
+                if 0 < key_counter[2] < CHNG_INTERVAL:
+                    shapes[2].setOpacity(shapes[2].opacity - ADJ_INTERVAL)
+                elif key_counter[2] == CHNG_INTERVAL:
+                    shapes[2].setOpacity(OPACITY_THRES)
+                elif key_counter[2] == REQUIRED_FRAMES:
+                    shapes[2].setOpacity(0.0)
+                    key_times[2] = temp_time
 
         # once the round is finished, use previous counters to calculate total time spent and individual click times
         if helper.checkOpacity(shapes):
