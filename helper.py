@@ -247,20 +247,7 @@ def pix_conv(window_w, window_h, w, h, a, b):
     :return: array of size 4: [left axis, right axis, top axis, bottom axis]
     """
 
-    # if a != 0:
-    #     left = (pos_conv(window_w, a) - unit_conv(window_w, w))
-    #     right = (pos_conv(window_w, a) + unit_conv(window_w, w))
-    # else:
-    #     left = (pos_conv(window_w, a) - unit_conv(window_w, w))
-    #     right = (pos_conv(window_w, a) + unit_conv(window_w, w))
-    #
-    # if b != 0:
-    #     top = (pos_conv(window_h, b) + unit_conv(window_h, h))
-    #     bottom = (pos_conv(window_h, b) - unit_conv(window_h, h))
-    # else:
-    #     top = (pos_conv(window_h, b) + unit_conv(window_h, h))
-    #     bottom = (pos_conv(window_h, b) - unit_conv(window_h, h))
-
+    # factor by which to expand the range around the block where eye tracking will register
     window_expansion_factor = 1.3
 
     if a != 0:
