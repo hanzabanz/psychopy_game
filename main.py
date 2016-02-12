@@ -3,6 +3,10 @@ from psychopy import event as evt
 from psychopy.iohub import ioHubExperimentRuntime
 from psychopy import data
 
+# import pyaudio
+import numpy as np
+from scipy import signal
+
 import motor
 import keyboard
 import speech
@@ -88,8 +92,8 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         mouse.getPos()
 
         # todo: implement serial output for sync; should it be 1-5 (or such) repeated to prevent overlap?
-        # ser = serial.Serial('dev/ttyUSB0', 9600)
-        ser = -1
+        ser = serial.Serial('COM10', 9600)
+        # ser = -1
 
         # Instructions and Button #
         title_label = visual.TextStim(window, units='norm', text=u'Remember the  sequence of  colored blocks.',
@@ -128,6 +132,12 @@ class ExperimentRuntime(ioHubExperimentRuntime):
 
         # Clear all events from the global and device level ioHub Event Buffers.
         self.hub.clearEvents('all')
+
+        # pyaud = pyaudio.PyAudio()
+        # t = np.linspace(0, 1, 48000, endpoint=False)
+        # audsig = signal.square(20*np.pi*5*t).astype(np.float32)
+        # stream = pyaud.open(format=pyaudio.paFloat32, channels=1, rate=48000, output=True)
+        # stream.write(0.5*audsig)
 
         #### INITIAL STARTER SCREEN ####
 

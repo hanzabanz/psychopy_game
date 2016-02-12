@@ -59,6 +59,9 @@ def trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, w
     :return: status of trial where 0 = completed but incorrect; 1 = completed and correct; 2 = incomplete
     """
 
+    while True:
+        ser.write('Input')
+
     # Default Value Set Up for Timing #
     global stimulus_beg_time
     stimulus_beg_time = -1
