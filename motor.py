@@ -73,7 +73,7 @@ def trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, w
 
     # Position Tracking File Set Up #
     text_file = open("motor_exp_%d.txt" % count, "w")
-    text_file.write("Time\tPosition\tRandom\n")
+    text_file.write("Time\tX\tY\tRandom\n")
 
     # Text Values #
     count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
@@ -97,11 +97,11 @@ def trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, w
 
     # block sequence display #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
-    ser.write("")
+    ser.write("Begin Sequence")
     global in_between_time
     in_between_time = helper.drawSequence(window, shapes, clock)
-    print "%f END BLOCK SEQUENCE" %(clock.getTime())
     ser.write("End Sequence")
+    print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
     # instructions are displayed #
     self.hub.clearEvents('all')

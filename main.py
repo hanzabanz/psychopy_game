@@ -92,7 +92,7 @@ class ExperimentRuntime(ioHubExperimentRuntime):
         mouse.getPos()
 
         # todo: implement serial output for sync; should it be 1-5 (or such) repeated to prevent overlap?
-        ser = serial.Serial('COM10', 9600)
+        ser = serial.Serial('COM4', 9600)
         # ser = -1
 
         # Instructions and Button #

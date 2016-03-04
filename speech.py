@@ -75,8 +75,10 @@ def trial(self, clock, window, shapes, mouse, keys, text_color, wait_time, warni
 
     # Block Sequence Display #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
+    ser.write("Begin Sequence")
     global in_between_time
     in_between_time = helper.drawSequence(window, shapes, clock)
+    ser.write("End Sequence")
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
     # for block interaction #
@@ -91,6 +93,7 @@ def trial(self, clock, window, shapes, mouse, keys, text_color, wait_time, warni
 
     # records for length of specified wait time
     mic.record(wait_time, block=False)
+    ser.write("Start")
     while mic.recorder.running:
         [s.draw() for s in BLOCK_LIST]
         count_label.draw()
@@ -112,6 +115,7 @@ def trial(self, clock, window, shapes, mouse, keys, text_color, wait_time, warni
             count_label.setText(((wait_time*60)-timeout_counter)/60)
 
     # turn off microphone and saves the audio file automatically
+    ser.write("Finish")
     microphone.switchOff()
     finish_time = clock.getTime()
 

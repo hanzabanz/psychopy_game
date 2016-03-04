@@ -1,6 +1,7 @@
 from psychopy import visual, core
 import helper
 import time
+import random
 
 __author__ = 'hannah'
 """
@@ -23,13 +24,15 @@ def track_time(clock):
     return core.Clock()
 
 # called to write data in excel file with position of the eye position and time
-def eye_position_time(clock, gpos, text_file):
+def eye_position_time(clock, gpos, text_file, num):
     clock_time = str(clock.getTime())
     text_file.write(clock_time)
     text_file.write("\t")
     text_file.write(str(gpos[0]))
     text_file.write("\t")
     text_file.write(str(gpos[1]))
+    text_file.write("\t")
+    text_file.write(str(num))
     text_file.write("\n")
 
 
@@ -59,7 +62,7 @@ def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_
 
     # Position Tracking File Set Up #
     text_file = open("eye_exp_%d.txt" % count, "w")
-    text_file.write("Time \t Position\n")
+    text_file.write("Time\tX\tY\tRandom\n")
 
     # Eye tracker set up
     tracker=self.hub.devices.tracker
@@ -114,8 +117,10 @@ def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_
 
     # block sequence display #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
+    ser.write("Begin Sequence")
     global in_between_time
     in_between_time = helper.drawSequence(window, shapes, clock)
+    ser.write("End Sequence")
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
 
     # instructions are displayed #
@@ -198,6 +203,8 @@ def trial(self, clock, window, shapes, text_color, centered, wait_time, warning_
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
 
+        num = random.randint(0, 10)
+        ser.write(num)  # write random number to Zigbee for syncing
         # gets and saves the eye position and time
         eye_position_time(clock, gpos, text_file)
 

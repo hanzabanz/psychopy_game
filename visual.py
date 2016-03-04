@@ -1,7 +1,8 @@
 from psychopy import visual
 from psychopy import core
 import time
-
+import serial
+import random
 
 __author__ = 'hannah'
 
@@ -31,7 +32,12 @@ if picture == 'square checkerboard':
 window=visual.Window(size=(windowsizex,windowsizey), units='norm', color=background_color, colorSpace='rgb',
                      fullscr=full_screen, allowGUI=False)
 clock = core.Clock()
+ser = serial.Serial('COM4', 9600)
 
+
+def writeMarker(ser):
+    num = random.randint(0,9)
+    ser.write(num)
 
 
 ## TRIAL ##
@@ -45,9 +51,11 @@ while curr_time <= (beg_time+duration):
     time.sleep(interval)
     board.draw()
     window.flip()
+    writeMarker(ser)
     time.sleep(interval)
     inv_board.draw()
     window.flip()
+    writeMarker(ser)
     curr_time = clock.getTime()
 
 
