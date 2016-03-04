@@ -1,6 +1,7 @@
 from psychopy import event
 from psychopy import visual
 import helper
+import random
 
 __author__ = 'hannah'
 """
@@ -31,7 +32,8 @@ def track_time(clock, mouse):
 
 
 # called to write data in excel file with position of the mouse and time
-def mouse_position_time(clock, mouse, text_file):
+# num- randomly-generated number used for syncing
+def mouse_position_time(clock, mouse, text_file, num):
     clock_time = str(clock.getTime())
     text_file.write(clock_time)
     text_file.write("\t")
@@ -39,6 +41,8 @@ def mouse_position_time(clock, mouse, text_file):
     text_file.write(str(mouse_pos[0]))
     text_file.write("\t")
     text_file.write(str(mouse_pos[1]))
+    text_file.write("\t")
+    text_file.write(str(num))
     text_file.write("\n")
 
 
@@ -59,9 +63,6 @@ def trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, w
     :return: status of trial where 0 = completed but incorrect; 1 = completed and correct; 2 = incomplete
     """
 
-    while True:
-        ser.write('Input')
-
     # Default Value Set Up for Timing #
     global stimulus_beg_time
     stimulus_beg_time = -1
@@ -72,7 +73,7 @@ def trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, w
 
     # Position Tracking File Set Up #
     text_file = open("motor_exp_%d.txt" % count, "w")
-    text_file.write("Time\tPosition\n")
+    text_file.write("Time\tPosition\tRandom\n")
 
     # Text Values #
     count_label = visual.TextStim(window, units='norm', text=u'', pos=[-0.5,-0.5], height=0.2, color=text_color,
@@ -96,9 +97,11 @@ def trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, w
 
     # block sequence display #
     print "%f BEGIN BLOCK SEQUENCE" %(clock.getTime())
+    ser.write("")
     global in_between_time
     in_between_time = helper.drawSequence(window, shapes, clock)
     print "%f END BLOCK SEQUENCE" %(clock.getTime())
+    ser.write("End Sequence")
 
     # instructions are displayed #
     self.hub.clearEvents('all')
@@ -174,8 +177,10 @@ def trial(self, clock, window, shapes, mouse, text_color, centered, wait_time, w
             print "%f TOTAL TIME TO FINISH ROUND" %(total_stimuli_time)
             break
 
+        num = random.randint(0, 10)
+        ser.write(num)  # write random number to Zigbee for syncing
         # gets and saves the mouse position and time A
-        mouse_position_time(clock, mouse, text_file)
+        mouse_position_time(clock, mouse, text_file, num)
 
         # adjust countdown value, to be displayed with the next flip
         curr_time = clock.getTime()
